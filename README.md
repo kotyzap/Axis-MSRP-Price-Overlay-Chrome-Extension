@@ -1,6 +1,8 @@
-# Axis MSRP Price Overlay
+# Axis MSRP Price Overlay (Q2/26 MSRPs)
 
 Shows Axis MSRP list prices and CamStreamer-sourced chipset info inline on the [Axis Product Selector](https://www.axis.com/support/tools/product-selector) and on [axis.com search results](https://www.axis.com/search), with a floating chipset filter panel and a toolbar popup for looking up any model/part number.
+
+<img width="1090" height="583" alt="badge-closeup" src="https://github.com/user-attachments/assets/3e818e6c-1036-4927-8668-8b3137e58cb7" />
 
 ## Install (unpacked, since this isn't published to the Chrome Web Store)
 
