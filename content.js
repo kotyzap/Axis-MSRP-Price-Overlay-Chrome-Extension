@@ -26,9 +26,10 @@
     return symbol + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  // "USD" (default) uses each variant's msrp field (Q1 2026 US price list);
-  // "EUR" uses msrp_eur (Axis EE January 2026 price list, camera products
-  // only - see catalog-data.js for per-variant coverage).
+  // "USD" (default) uses each variant's msrp field (Axis Q1 2026 US "cheat
+  // sheet" price list); "EUR" uses msrp_eur (Axis Q1 2026 DACH "cheat sheet"
+  // price list, camera products only - see catalog-data.js for per-variant
+  // coverage).
   let currentCurrency = "USD";
   function priceField() {
     return currentCurrency === "EUR" ? "msrp_eur" : "msrp";
@@ -117,7 +118,7 @@
     const picked = pickVariant(match);
     if (!picked) return null;
     const field = picked.field;
-    const sourceLabel = currentCurrency === "EUR" ? "Axis EE price list (Jan 2026, EUR)" : "Axis MSRP (Q1 2026 price list)";
+    const sourceLabel = currentCurrency === "EUR" ? "Axis DACH price list (Q1 2026, EUR)" : "Axis MSRP (Q1 2026 price list)";
 
     if (picked.single) {
       const v = picked.single;

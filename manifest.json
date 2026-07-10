@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Axis MSRP Price Overlay",
-  "version": "1.5.8",
+  "version": "1.5.9",
   "description": "Shows Axis MSRP list prices (USD or EUR, switchable in the popup) inline on the Axis Product Selector and on axis.com search results, with chipset info, a floating chipset filter panel, and series sorted by the cheapest currently-visible price.",
   "icons": {
     "16": "icons/icon16.png",

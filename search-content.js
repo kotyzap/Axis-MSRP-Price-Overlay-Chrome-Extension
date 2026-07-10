@@ -36,7 +36,7 @@
   }
 
   // "USD" (default) uses each variant's msrp field; "EUR" uses msrp_eur
-  // (Axis EE January 2026 price list, camera products only).
+  // (Axis Q1 2026 DACH "cheat sheet" price list, camera products only).
   let currentCurrency = "USD";
   function priceField() {
     return currentCurrency === "EUR" ? "msrp_eur" : "msrp";
@@ -110,7 +110,7 @@
     const picked = pickVariant(match);
     if (!picked) return null;
     const field = picked.field;
-    const sourceLabel = currentCurrency === "EUR" ? "Axis EE price list (Jan 2026, EUR)" : "Axis MSRP (Q1 2026 price list)";
+    const sourceLabel = currentCurrency === "EUR" ? "Axis DACH price list (Q1 2026, EUR)" : "Axis MSRP (Q1 2026 price list)";
 
     if (picked.single) {
       const v = picked.single;
@@ -159,7 +159,7 @@
       }
     }
     if (!cheapest) return null;
-    const sourceLabel = currentCurrency === "EUR" ? "Axis EE price list (Jan 2026, EUR)" : "Axis MSRP (Q1 2026 price list)";
+    const sourceLabel = currentCurrency === "EUR" ? "Axis DACH price list (Q1 2026, EUR)" : "Axis MSRP (Q1 2026 price list)";
     return {
       text: "from " + fmtPrice(cheapest[field], currentCurrency),
       title: sourceLabel + " — cheapest of " + count + " matched " + prefix + "-series SKUs",
