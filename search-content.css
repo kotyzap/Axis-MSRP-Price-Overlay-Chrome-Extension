@@ -1,0 +1,18 @@
+/* Price badge appended to the end of each search result's bold title line
+   on axis.com/search. Inline (not overlaying an image, unlike the Product
+   Selector badges), so a small rounded pill reads better than the flush
+   edge-to-edge style used there. */
+
+.axis-search-price-badge {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(255, 204, 51, 0.85);
+  border-radius: 3px;
+  white-space: nowrap;
+  cursor: help;
+}

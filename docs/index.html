@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Axis MSRP Price Overlay — Chrome Extension</title>
+<meta name="description" content="Shows Axis MSRP list prices (USD or EUR) and CamStreamer chipset info inline on the Axis Product Selector and axis.com search results.">
+<style>
+  :root {
+    --yellow: #FFC800;
+    --yellow-deep: #E8B400;
+    --red: #E2231A;
+    --black: #101010;
+    --bg: #FAFAF8;
+    --bg-alt: #F0EFEA;
+    --card: #FFFFFF;
+    --border: #E4E2DB;
+    --text: #17181A;
+    --muted: #63666A;
+    --shadow: 0 1px 3px rgba(16,16,16,0.06), 0 8px 24px rgba(16,16,16,0.06);
+    --radius: 14px;
+    --code-bg: #F3F1EA;
+  }
+  [data-theme="dark"] {
+    --bg: #101214;
+    --bg-alt: #16181b;
+    --card: #1b1e21;
+    --border: #2b2e32;
+    --text: #F2F1EC;
+    --muted: #9a9da1;
+    --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 12px 28px rgba(0,0,0,0.35);
+    --code-bg: #202327;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  a { color: inherit; }
+  img { max-width: 100%; display: block; }
+  section { padding: 72px 24px; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1, h2, h3 { font-weight: 800; letter-spacing: -0.01em; margin: 0 0 12px; }
+  h2 { font-size: 30px; }
+  h3 { font-size: 18px; }
+  p { color: var(--muted); margin: 0 0 16px; }
+  code, .kbd {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 7px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.9em;
+    color: var(--text);
+  }
+
+  /* ---------- Nav ---------- */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--black);
+    border-bottom: 3px solid var(--yellow);
+  }
+  .nav {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .mark { position: relative; width: 30px; height: 26px; flex: none; }
+  .mark .tri {
+    position: absolute; width: 0; height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 26px solid var(--yellow);
+    left: 0; top: 0;
+  }
+  .mark .tri.accent {
+    border-bottom-color: var(--red);
+    transform: scale(0.55) translate(14px, 2px);
+    opacity: 0.95;
+  }
+  .brand-text { color: #fff; }
+  .brand-text .t1 { font-weight: 800; font-size: 16px; letter-spacing: 0.01em; }
+  .brand-text .t2 { font-size: 11px; color: #c9c9c9; letter-spacing: 0.14em; text-transform: uppercase; }
+  nav.links { display: flex; align-items: center; gap: 22px; }
+  nav.links a { color: #e9e9e9; text-decoration: none; font-size: 14px; font-weight: 600; }
+  nav.links a:hover { color: var(--yellow); }
+  .theme-btn {
+    border: 1px solid #3a3a3a;
+    background: transparent;
+    color: #fff;
+    border-radius: 999px;
+    width: 34px; height: 34px;
+    cursor: pointer;
+    font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .theme-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+
+  /* ---------- Hero ---------- */
+  .hero { padding-top: 64px; padding-bottom: 20px; }
+  .hero .wrap { text-align: center; }
+  .eyebrow {
+    display: inline-block;
+    background: var(--yellow);
+    color: var(--black);
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 999px;
+    margin-bottom: 20px;
+  }
+  .hero h1 { font-size: 42px; max-width: 780px; margin: 0 auto 16px; }
+  .hero .sub { max-width: 620px; margin: 0 auto 28px; font-size: 17px; }
+  .stat-row {
+    display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 40px;
+  }
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: var(--shadow);
+  }
+  .stat span { color: var(--yellow-deep); }
+  .shot {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    background: var(--card);
+  }
+  .shot img { width: 100%; }
+  .hero .shot { max-width: 900px; margin: 0 auto; }
+  figure { margin: 0; }
+  figcaption {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  /* ---------- Features ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow);
+  }
+  .card .shot { margin-bottom: 16px; }
+  .card .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px;
+    background: var(--yellow);
+    color: var(--black);
+    font-weight: 800;
+    font-size: 13px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+  }
+
+  /* ---------- Sort compare ---------- */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 28px; }
+  .compare figcaption strong { color: var(--text); }
+
+  /* ---------- Install ---------- */
+  .steps { counter-reset: step; list-style: none; margin: 0 0 32px; padding: 0; max-width: 560px; }
+  .steps li {
+    counter-increment: step;
+    position: relative;
+    padding: 4px 0 20px 44px;
+    color: var(--muted);
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 0;
+    width: 30px; height: 30px;
+    background: var(--black);
+    color: var(--yellow);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px;
+  }
+  .steps li strong { color: var(--text); }
+  .install-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: start; }
+  @media (max-width: 860px) { .install-grid { grid-template-columns: 1fr; } }
+
+  /* ---------- Data sources ---------- */
+  .sources { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .source-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .source-card h3 { display: flex; align-items: center; gap: 8px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--yellow); flex: none; }
+
+  .bg-alt { background: var(--bg-alt); }
+
+  footer {
+    padding: 40px 24px 56px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+  }
+  footer p { font-size: 12.5px; margin: 0 0 6px; }
+
+  @media (max-width: 760px) {
+    .grid, .compare, .install-grid, .sources { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 30px; }
+    nav.links a:not(.theme-btn) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <a class="brand" href="#top">
+      <span class="mark"><span class="tri"></span><span class="tri accent"></span></span>
+      <span class="brand-text">
+        <div class="t1">Axis MSRP Price Overlay</div>
+        <div class="t2">Chrome Extension</div>
+      </span>
+    </a>
+    <nav class="links">
+      <a href="#features">Features</a>
+      <a href="#sorting">Sorting</a>
+      <a href="#install">Install</a>
+      <a href="#sources">Data sources</a>
+      <button class="theme-btn" id="themeToggle" title="Toggle light/dark" aria-label="Toggle theme">◐</button>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Unpacked install · not on Chrome Web Store</span>
+    <h1>Axis MSRP prices as of Q2/2026<br>Right on the AXIS Product Selector and AXIS.com</h1>
+    <p class="sub">
+      Adds a yellow MSRP price badge and a CamStreamer chipset label to every recognized product on the
+      <a href="https://www.axis.com/support/tools/product-selector" target="_blank" rel="noopener">Axis Product Selector</a>
+      and on <a href="https://www.axis.com/search" target="_blank" rel="noopener">axis.com search results</a> —
+      switchable between USD and EUR, with a floating chipset filter and a toolbar popup for looking up any
+      model or part number.
+    </p>
+    <div class="stat-row">
+      <div class="stat"><span>290</span> models</div>
+      <div class="stat"><span>377</span> SKUs</div>
+      <div class="stat"><span>USD</span> + <span>EUR</span></div>
+      <div class="stat">v<span>1.5.8</span></div>
+    </div>
+    <figure class="shot">
+      <img src="img/product-selector-overview.png" alt="Axis Product Selector page with yellow MSRP price badges and chipset labels on every product card, plus the floating chipset filter panel">
+    </figure>
+    <figcaption>The Product Selector, badged: price + chipset on every card, filter panel bottom-right.</figcaption>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>What it does</h2>
+    <p style="max-width:640px">Four content scripts, one shared price catalog. Everything updates live — no page reload needed when you flip currency or touch the chipset filter.</p>
+    <div class="grid">
+
+      <div class="card">
+        <span class="num">1</span>
+        <h3>Inline MSRP + chipset badges</h3>
+        <figure class="shot">
+          <img src="img/badge-closeup.png" alt="Close-up of AXIS M11 series product cards, each with a black ARTPEC-6/7 chipset badge and a yellow MSRP price badge">
+        </figure>
+        <p>Every recognized product tile on the Product Selector gets a yellow price badge (hover for the Axis part number) and, where CamStreamer has data for it, a small chipset label above it — with a checkmark when that chipset runs CamStreamer ACAPs.</p>
+      </div>
+
+      <div class="card">
+        <span class="num">2</span>
+        <h3>Currency + model lookup, from the toolbar</h3>
+        <figure class="shot">
+          <img src="img/popup-search.png" alt="Extension popup showing a USD/EUR currency toggle, a search box, and a list of matched models with part numbers, prices, and category">
+        </figure>
+        <p>Click the extension icon to switch <strong>$ USD / € EUR</strong> everywhere at once, or search the full catalog directly by model name or part number — independent of whichever Axis page you're on.</p>
+      </div>
+
+      <div class="card">
+        <span class="num">3</span>
+        <h3>Chipset filter panel</h3>
+        <figure class="shot">
+          <img src="img/chipset-filter-detail.png" alt="Floating chipset filter panel with checkboxes for ARTPEC-9, ARTPEC-8, ARTPEC-6/7, ARTPEC-3/4/5, and Ambarella, plus a CamStreamer ACAPs quick-select preset">
+        </figure>
+        <p>Multi-select ARTPEC-9 / ARTPEC-8 / ARTPEC-6-7 / older ARTPEC / Ambarella — unlike the site's own single-select "System-on-chip" dropdown. One click on <strong>CamStreamer ACAPs</strong> selects every chipset family CamStreamer apps actually run on.</p>
+      </div>
+
+      <div class="card">
+        <span class="num">4</span>
+        <h3>Price badges on axis.com search too</h3>
+        <figure class="shot">
+          <img src="img/search-results-badge.png" alt="axis.com search results page for P1388, each result title ending in a yellow EUR price badge">
+        </figure>
+        <p>Search <a href="https://www.axis.com/search?q=M1137" target="_blank" rel="noopener">axis.com/search</a> for a model (<code>M1137</code>) or a whole series (<code>M11</code>, <code>Q35</code>) — recognized titles get an exact price, a variant range, or a "from $X" badge for series spanning multiple models.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="bg-alt" id="sorting">
+  <div class="wrap">
+    <h2>Sort series by cheapest price</h2>
+    <p style="max-width:640px">An optional toggle in the chipset filter panel re-ranks every series so the one with the cheapest currently-visible product floats to the top — recalculated live as you filter by chipset.</p>
+    <div class="compare">
+      <figure class="shot">
+        <img src="img/sort-before.png" alt="Chipset filter panel with Sort series by cheapest price unchecked; AXIS M11 series is followed by AXIS M30 series">
+      </figure>
+      <figcaption><strong>Off</strong> — series stay in the Product Selector's own default order (M11 → M30 …).</figcaption>
+      <figure class="shot">
+        <img src="img/sort-after.png" alt="Chipset filter panel with Sort series by cheapest price checked; AXIS M11 series is now followed by Modular cameras, from $529">
+      </figure>
+      <figcaption><strong>On</strong> — Modular cameras (from $529) jumps ahead of M30, since it's now the cheapest visible series.</figcaption>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <h2>Install (unpacked)</h2>
+    <p style="max-width:640px">Not published to the Chrome Web Store, so it loads as an unpacked extension — same as any local dev build.</p>
+    <div class="install-grid">
+      <ol class="steps">
+        <li>Open <code>chrome://extensions</code> in Chrome.</li>
+        <li>Turn on <strong>Developer mode</strong> (top-right toggle).</li>
+        <li>Click <strong>Load unpacked</strong> and select the <code>axis-msrp-extension</code> folder.</li>
+        <li>Open the <a href="https://www.axis.com/support/tools/product-selector" target="_blank" rel="noopener">Product Selector</a> — badges and the chipset filter panel appear automatically.</li>
+        <li>Click the extension icon any time to flip currency or look up a model by name or part number.</li>
+      </ol>
+      <figure class="shot">
+        <img src="img/install-load-unpacked.png" alt="Annotated screenshot of chrome://extensions showing Load unpacked, selecting the axis-msrp-extension-1.5.8 folder, and the installed Axis MSRP Price Overlay extension">
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="bg-alt" id="sources">
+  <div class="wrap">
+    <h2>Data sources</h2>
+    <div class="sources">
+      <div class="source-card">
+        <h3><span class="dot"></span>Prices (USD)</h3>
+        <p><code>catalog-data.js</code> bundles 290 models / 377 SKUs extracted from Axis's Q1 2026 "cheat sheet" price list PDF (MSRP, USD). Coverage isn't 100% — a handful of very new SKUs, VMS software licenses, and some accessory items aren't priced individually there.</p>
+      </div>
+      <div class="source-card">
+        <h3><span class="dot"></span>Prices (EUR)</h3>
+        <p>The same file carries an <code>msrp_eur</code> figure per SKU, joined from the Axis EE January 2026 price list. That source only covers actual camera products — encoders, recorders, network audio, access control, 2N, and accessories simply have no EUR data. No badge shows in EUR mode rather than guessing.</p>
+      </div>
+      <div class="source-card">
+        <h3><span class="dot"></span>Chipsets</h3>
+        <p><code>chipset-data.js</code> bundles a snapshot parsed from <a href="https://camstreamer.com/download-app-all-supported-cameras" target="_blank" rel="noopener">camstreamer.com's supported-hardware list</a> — inferred from which CamStreamer app build each device runs, refreshed weekly by the background service worker (or on demand from the popup).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Personal project — not affiliated with, endorsed by, or sponsored by Axis Communications AB. AXIS® is a trademark of Axis Communications AB.</p>
+  <p>Axis MSRP Price Overlay v1.5.8</p>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('themeToggle');
+    var stored = localStorage.getItem('axisDocsTheme');
+    if (stored === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    btn.addEventListener('click', function () {
+      var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('axisDocsTheme', 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('axisDocsTheme', 'dark');
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>
