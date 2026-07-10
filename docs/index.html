@@ -108,6 +108,32 @@
     display: flex; align-items: center; justify-content: center;
   }
   .theme-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+  .icon-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px;
+    border: 1px solid #3a3a3a;
+    border-radius: 999px;
+    color: #fff;
+  }
+  .icon-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+  .icon-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+  /* ---------- CTA buttons ---------- */
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 32px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 20px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    border: 1px solid transparent;
+  }
+  .btn svg { width: 16px; height: 16px; fill: currentColor; }
+  .btn-primary { background: var(--yellow); color: var(--black); }
+  .btn-primary:hover { background: var(--yellow-deep); }
+  .btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+  .btn-ghost:hover { border-color: var(--yellow-deep); }
 
   /* ---------- Hero ---------- */
   .hero { padding-top: 64px; padding-bottom: 20px; }
@@ -180,6 +206,9 @@
     border-radius: 50%;
     margin-bottom: 10px;
   }
+  .card-wide { grid-column: 1 / -1; }
+  .card-wide .shot { max-width: 720px; margin: 0 auto 16px; }
+  @media (max-width: 760px) { .card-wide .shot { max-width: 100%; } }
 
   /* ---------- Sort compare ---------- */
   .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 28px; }
@@ -251,6 +280,9 @@
       <a href="#sorting">Sorting</a>
       <a href="#install">Install</a>
       <a href="#sources">Data sources</a>
+      <a class="icon-btn" href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener" title="View on GitHub" aria-label="View on GitHub">
+        <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      </a>
       <button class="theme-btn" id="themeToggle" title="Toggle light/dark" aria-label="Toggle theme">◐</button>
     </nav>
   </div>
@@ -273,10 +305,20 @@
       <div class="stat"><span>USD</span> + <span>EUR</span></div>
       <div class="stat">v<span>1.5.8</span></div>
     </div>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension/releases" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16"><path d="M8 1a.75.75 0 0 1 .75.75v6.69l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V1.75A.75.75 0 0 1 8 1zM2 12.5a.75.75 0 0 1 .75.75v.75c0 .28.22.5.5.5h9.5a.5.5 0 0 0 .5-.5v-.75a.75.75 0 0 1 1.5 0v.75A2 2 0 0 1 12.75 16h-9.5A2 2 0 0 1 1.25 14v-.75A.75.75 0 0 1 2 12.5z"/></svg>
+        Latest release
+      </a>
+      <a class="btn btn-ghost" href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        View source on GitHub
+      </a>
+    </div>
     <figure class="shot">
-      <img src="img/product-selector-overview.png" alt="Axis Product Selector page with yellow MSRP price badges and chipset labels on every product card, plus the floating chipset filter panel">
+      <img src="img/badge-closeup.png" alt="Close-up of AXIS M11 series product cards, each with a black ARTPEC-6/7 chipset badge and a yellow MSRP price badge, one card shown mid-hover">
     </figure>
-    <figcaption>The Product Selector, badged: price + chipset on every card, filter panel bottom-right.</figcaption>
+    <figcaption>Every recognized card gets a chipset badge and an MSRP price badge — automatically, no reload needed.</figcaption>
   </div>
 </section>
 
@@ -290,7 +332,7 @@
         <span class="num">1</span>
         <h3>Inline MSRP + chipset badges</h3>
         <figure class="shot">
-          <img src="img/badge-closeup.png" alt="Close-up of AXIS M11 series product cards, each with a black ARTPEC-6/7 chipset badge and a yellow MSRP price badge">
+          <img src="img/inline-badges-overview.png" alt="Axis Product Selector showing AXIS M32, M42, and M43 series cards, every one with an ARTPEC-8 chipset badge and a yellow USD price badge">
         </figure>
         <p>Every recognized product tile on the Product Selector gets a yellow price badge (hover for the Axis part number) and, where CamStreamer has data for it, a small chipset label above it — with a checkmark when that chipset runs CamStreamer ACAPs.</p>
       </div>
@@ -313,7 +355,7 @@
         <p>Multi-select ARTPEC-9 / ARTPEC-8 / ARTPEC-6-7 / older ARTPEC / Ambarella — unlike the site's own single-select "System-on-chip" dropdown. One click on <strong>CamStreamer ACAPs</strong> selects every chipset family CamStreamer apps actually run on.</p>
       </div>
 
-      <div class="card">
+      <div class="card card-wide">
         <span class="num">4</span>
         <h3>Price badges on axis.com search too</h3>
         <figure class="shot">
@@ -346,9 +388,10 @@
 <section id="install">
   <div class="wrap">
     <h2>Install (unpacked)</h2>
-    <p style="max-width:640px">Not published to the Chrome Web Store, so it loads as an unpacked extension — same as any local dev build.</p>
+    <p style="max-width:640px">Not published to the Chrome Web Store, so it loads as an unpacked extension — same as any local dev build. Grab a packaged copy from the <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension/releases" target="_blank" rel="noopener">latest release</a>, or clone the <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">source repo</a> directly.</p>
     <div class="install-grid">
       <ol class="steps">
+        <li>Download and unzip the <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension/releases" target="_blank" rel="noopener">latest release</a>.</li>
         <li>Open <code>chrome://extensions</code> in Chrome.</li>
         <li>Turn on <strong>Developer mode</strong> (top-right toggle).</li>
         <li>Click <strong>Load unpacked</strong> and select the <code>axis-msrp-extension</code> folder.</li>
@@ -384,7 +427,7 @@
 
 <footer>
   <p>Personal project — not affiliated with, endorsed by, or sponsored by Axis Communications AB. AXIS® is a trademark of Axis Communications AB.</p>
-  <p>Axis MSRP Price Overlay v1.5.8</p>
+  <p>Axis MSRP Price Overlay v1.5.8 · <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">GitHub</a> · <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension/releases" target="_blank" rel="noopener">Releases</a></p>
 </footer>
 
 <script>
