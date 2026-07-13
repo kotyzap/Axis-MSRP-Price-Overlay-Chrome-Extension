@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Axis MSRP Price Overlay — Chrome Extension</title>
+<meta name="description" content="A yellow MSRP badge and a CamStreamer chipset label on every recognized camera — on the Axis Product Selector and axis.com search. USD or EUR, a multi-select chipset filter, and a toolbar popup that looks up any model or part number.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yellow: #FFC800;
+    --yellow-deep: #B78E00;
+    --void: #0E0E0E;
+    --ink: #121212;
+    --cream: #FAFAF7;
+    --cream-alt: #F0EFE8;
+    --line: #DDDACF;
+    --line-dark: #2C2C2C;
+    --line-dark-soft: #3C3C3C;
+    --text-on-dark: #F4F3EE;
+    --sub-on-dark: #B9B8B2;
+    --mute-on-dark: #8D8D8D;
+    --mute-on-dark-2: #9B9B9B;
+    --nav-link: #E8E8E8;
+    --mute-on-light: #63615A;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Archivo', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+  a { color: inherit; }
+  img { max-width: 100%; display: block; }
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--cream-alt);
+    border: 1px solid var(--line);
+    padding: 1px 6px;
+    font-size: 0.9em;
+    color: var(--ink);
+  }
+  ::selection { background: var(--yellow); color: var(--ink); }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 28px; }
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 15px;
+    padding: 12px 24px;
+    letter-spacing: 0.01em;
+    border: 1px solid transparent;
+  }
+  .btn svg { width: 16px; height: 16px; fill: currentColor; }
+  .btn-primary { background: var(--yellow); color: var(--void); box-shadow: 5px 5px 0 rgba(255,200,0,0.25); }
+  .btn-primary:hover { background: #fff; box-shadow: 5px 5px 0 rgba(255,255,255,0.25); }
+  .btn-ghost { background: transparent; color: var(--text-on-dark); border-color: var(--line-dark-soft); font-weight: 700; }
+  .btn-ghost:hover { border-color: var(--yellow); color: var(--yellow); }
+  .btn-nav { background: var(--yellow); color: var(--void); font-weight: 800; font-size: 13px; padding: 9px 16px; }
+  .btn-nav:hover { background: #fff; }
+
+  /* ---------- Nav ---------- */
+  header {
+    position: sticky; top: 0; z-index: 60;
+    background: var(--void);
+    border-bottom: 4px solid var(--yellow);
+  }
+  .nav-inner {
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .brand-mark {
+    width: 34px; height: 34px; flex: none;
+    background: var(--yellow);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 15px; color: var(--void); letter-spacing: -0.02em;
+  }
+  .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+  .brand-text .t1 { color: #fff; font-weight: 800; font-size: 15px; letter-spacing: 0.01em; }
+  .brand-text .t2 { color: var(--mute-on-dark); font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; }
+  .nav-links { display: flex; align-items: center; gap: 26px; }
+  .nav-links a:not(.btn-nav) { color: var(--nav-link); text-decoration: none; font-size: 13.5px; font-weight: 600; letter-spacing: 0.02em; }
+  .nav-links a:not(.btn-nav):hover { color: var(--yellow); }
+  .icon-github { width: 15px; height: 15px; fill: currentColor; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    background: var(--void); color: var(--text-on-dark);
+    padding: 40px 28px 48px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 96px);
+  }
+  .hero .wrap { position: relative; }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 36px; align-items: center; }
+  .hero-copy { min-width: 0; }
+  .tag-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .tag {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 6px 12px; border: 1px solid var(--line-dark-soft); color: var(--mute-on-dark-2);
+  }
+  .tag-accent { color: var(--yellow); border-color: rgba(255,200,0,0.45); }
+  .hero h1 {
+    margin: 0 0 14px; font-weight: 900; letter-spacing: -0.03em; line-height: 0.98;
+    font-size: clamp(28px, 3.6vw, 54px); max-width: 560px; text-transform: uppercase;
+  }
+  .hero h1 span { color: var(--yellow); }
+  .hero .sub { margin: 0 0 18px; max-width: 520px; font-size: 15.5px; line-height: 1.55; color: var(--sub-on-dark); }
+  .hero .sub a { color: var(--text-on-dark); text-decoration-color: var(--yellow); }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 22px; }
+  .stat-strip {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--line-dark); border-bottom: none;
+    max-width: 760px;
+  }
+  .stat-strip div { padding: 8px 20px; border-right: 1px solid var(--line-dark); }
+  .stat-strip div:last-child { border-right: none; }
+  .stat-num { font-weight: 900; font-size: 22px; color: var(--yellow); letter-spacing: -0.02em; }
+  .stat-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute-on-dark); margin-top: 2px; }
+  .hero-shot { margin: 0; border: 1px solid var(--line-dark); background: var(--cream); width: 100%; }
+  .hero-shot img { width: 100%; height: auto; }
+
+  /* ---------- Ticker ---------- */
+  .ticker {
+    background: var(--yellow); border-top: 1px solid var(--void); border-bottom: 1px solid var(--void);
+    overflow: hidden; padding: 10px 0;
+  }
+  .ticker-track {
+    display: flex; gap: 34px; white-space: nowrap;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600; color: var(--void); letter-spacing: 0.04em;
+    width: max-content;
+    animation: ticker-scroll 32s linear infinite;
+  }
+  .ticker:hover .ticker-track { animation-play-state: paused; }
+  .ticker-track span { flex: none; }
+  .ticker-track .sep { opacity: 0.45; }
+  @keyframes ticker-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ---------- Section heading ---------- */
+  .eyebrow-row { display: flex; align-items: baseline; gap: 18px; margin-bottom: 14px; }
+  .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.2em; font-weight: 600; }
+  .eyebrow-light { color: var(--yellow-deep); }
+  .eyebrow-dark { color: var(--yellow); }
+  .rule { flex: 1; height: 1px; }
+  .rule-light { background: var(--line); }
+  .rule-dark { background: var(--line-dark); }
+  .section-title { margin: 0 0 14px; font-weight: 900; letter-spacing: -0.025em; text-transform: uppercase; font-size: clamp(28px, 3.6vw, 46px); }
+  .section-sub { margin: 0 0 44px; max-width: 640px; font-size: 16px; line-height: 1.6; }
+  .section-sub-light { color: var(--mute-on-light); }
+  .section-sub-dark { color: var(--sub-on-dark); }
+
+  section { padding: 96px 28px; }
+
+  /* ---------- Features ---------- */
+  .features { background: var(--cream); }
+  .feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
+  .feature-card { background: #fff; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); display: flex; flex-direction: column; }
+  .feature-figure { margin: 0; border-bottom: 2px solid var(--ink); }
+  .feature-figure-inset { background: var(--cream-alt); display: flex; justify-content: center; padding: 20px 20px 0; }
+  .feature-figure-inset img { box-shadow: 0 12px 32px rgba(16,16,16,0.18); }
+  .feature-body { padding: 24px 26px 28px; }
+  .feature-kicker { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.18em; color: var(--yellow-deep); font-weight: 600; margin-bottom: 8px; }
+  .feature-body h3 { margin: 0 0 10px; font-weight: 800; font-size: 21px; letter-spacing: -0.01em; }
+  .feature-body p { margin: 0; color: var(--mute-on-light); font-size: 15px; line-height: 1.6; }
+  .feature-body strong { color: var(--ink); }
+
+  /* ---------- Sorting ---------- */
+  .sorting { background: var(--void); color: var(--text-on-dark); }
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .compare figure { margin: 0; }
+  .compare-frame { border: 1px solid var(--line-dark-soft); }
+  .compare-frame.on { border-color: var(--yellow); }
+  .compare figcaption { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 14px; color: var(--sub-on-dark); }
+  .state-tag { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; padding: 4px 10px; flex: none; }
+  .state-tag.off { background: var(--line-dark); color: var(--text-on-dark); }
+  .state-tag.on { background: var(--yellow); color: var(--void); font-weight: 600; }
+
+  /* ---------- Install ---------- */
+  .install { background: var(--cream); }
+  .install-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: start; }
+  .steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .steps li { display: flex; gap: 18px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .steps li:last-child { border-bottom: none; }
+  .step-num {
+    flex: none; width: 32px; height: 32px; background: var(--void); color: var(--yellow);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 13px;
+  }
+  .step-text { font-size: 15.5px; line-height: 1.55; color: var(--mute-on-light); padding-top: 4px; }
+  .step-text strong { color: var(--ink); }
+  .step-text a { font-weight: 600; }
+  .install-shot { margin: 0; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--yellow); }
+
+  /* ---------- Sources ---------- */
+  .sources { background: var(--cream-alt); border-top: 1px solid var(--line); }
+  .sources-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .source-card { background: #fff; border: 2px solid var(--ink); padding: 26px 26px 30px; }
+  .source-tag { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.16em; display: inline-block; padding: 5px 11px; font-weight: 600; margin-bottom: 16px; }
+  .source-tag.light { background: var(--yellow); color: var(--void); }
+  .source-tag.dark { background: var(--void); color: var(--yellow); }
+  .source-card p { margin: 0; color: var(--mute-on-light); font-size: 14.5px; line-height: 1.65; }
+  .source-card a { font-weight: 600; }
+
+  /* ---------- Footer ---------- */
+  footer { background: var(--void); color: var(--mute-on-dark); padding: 48px 28px 56px; border-top: 4px solid var(--yellow); }
+  .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 24px; }
+  .footer-brand { max-width: 560px; }
+  .footer-brand-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .footer-mark { width: 26px; height: 26px; background: var(--yellow); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 12px; color: var(--void); }
+  .footer-brand-row span.name { color: var(--text-on-dark); font-weight: 800; font-size: 14px; }
+  .footer-brand p { margin: 0; font-size: 12.5px; line-height: 1.6; }
+  .footer-links { display: flex; gap: 24px; font-size: 13.5px; font-weight: 600; }
+  .footer-links a { color: var(--nav-link); text-decoration: none; }
+  .footer-links a:hover { color: var(--yellow); }
+
+  @media (max-width: 860px) {
+    .install-grid, .compare, .feature-grid, .sources-grid { grid-template-columns: 1fr; }
+    .hero-grid { grid-template-columns: 1fr; gap: 28px; }
+    .hero h1, .hero .sub { max-width: 100%; }
+    .stat-strip { grid-template-columns: repeat(2, 1fr); max-width: 100%; }
+    .stat-strip div:nth-child(2) { border-right: none; }
+  }
+  @media (max-width: 640px) {
+    .hero { padding-top: 28px; }
+    .nav-links a:not(.btn-nav):not(.icon-github-link) { display: none; }
+    section { padding: 64px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top">
+      <span class="brand-mark">A$</span>
+      <span class="brand-text">
+        <span class="t1">Axis MSRP Price Overlay</span>
+        <span class="t2">Chrome extension · v1.5.9</span>
+      </span>
+    </a>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#sorting">Sorting</a>
+      <a href="#install">Install</a>
+      <a href="#sources">Data</a>
+      <a class="btn-nav" href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">
+        <svg class="icon-github" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <div class="tag-row">
+        <span class="tag tag-accent">MSRP list prices · Q2/2026</span>
+        <span class="tag">Unpacked install — not on Chrome Web Store</span>
+      </div>
+      <h1>Every Axis price,<br><span>right on the Product Selector.</span></h1>
+      <p class="sub">
+        A yellow MSRP badge and a CamStreamer chipset label on every recognized camera — on the
+        <a href="https://www.axis.com/support/tools/product-selector" target="_blank" rel="noopener">Axis Product Selector</a>
+        and <a href="https://www.axis.com/search" target="_blank" rel="noopener">axis.com search</a>.
+        USD or EUR, a multi-select chipset filter, and a toolbar popup that looks up any model or part number.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension/releases" target="_blank" rel="noopener">
+          <svg viewBox="0 0 16 16"><path d="M8 1a.75.75 0 0 1 .75.75v6.69l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V1.75A.75.75 0 0 1 8 1zM2 12.5a.75.75 0 0 1 .75.75v.75c0 .28.22.5.5.5h9.5a.5.5 0 0 0 .5-.5v-.75a.75.75 0 0 1 1.5 0v.75A2 2 0 0 1 12.75 16h-9.5A2 2 0 0 1 1.25 14v-.75A.75.75 0 0 1 2 12.5z"/></svg>
+          Download latest release
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">View source</a>
+      </div>
+      <div class="stat-strip">
+        <div><div class="stat-num">290</div><div class="stat-label">Models</div></div>
+        <div><div class="stat-num">377</div><div class="stat-label">SKUs priced</div></div>
+        <div><div class="stat-num">$ / €</div><div class="stat-label">USD + EUR</div></div>
+        <div><div class="stat-num">v1.5.9</div><div class="stat-label">Current build</div></div>
+      </div>
+    </div>
+    <figure class="hero-shot">
+      <img src="img/badge-closeup.png" alt="Close-up of AXIS M11 series product cards, each with a black ARTPEC-6/7 chipset badge and a yellow MSRP price badge">
+    </figure>
+  </div>
+</section>
+
+<div class="ticker">
+  <div class="ticker-track">
+    <span>AXIS M1135 Mk II — $499</span><span class="sep">/</span>
+    <span>AXIS P1388 — $1,299</span><span class="sep">/</span>
+    <span>AXIS Q1728 — $1,269</span><span class="sep">/</span>
+    <span>AXIS Q1686-DLE — $4,129</span><span class="sep">/</span>
+    <span>AXIS M4327-P — $899</span><span class="sep">/</span>
+    <span>AXIS Q3536-LVE — $1,449</span><span class="sep">/</span>
+    <span>ARTPEC-8 ✓ CamStreamer</span><span class="sep">/</span>
+    <span>AXIS M1135 Mk II — $499</span><span class="sep">/</span>
+    <span>AXIS P1388 — $1,299</span><span class="sep">/</span>
+    <span>AXIS Q1728 — $1,269</span><span class="sep">/</span>
+    <span>AXIS Q1686-DLE — $4,129</span><span class="sep">/</span>
+    <span>AXIS M4327-P — $899</span><span class="sep">/</span>
+    <span>AXIS Q3536-LVE — $1,449</span><span class="sep">/</span>
+    <span>ARTPEC-8 ✓ CamStreamer</span>
+  </div>
+</div>
+
+<section class="features" id="features">
+  <div class="wrap">
+    <div class="eyebrow-row">
+      <span class="eyebrow eyebrow-light">01 — WHAT IT DOES</span>
+      <span class="rule rule-light"></span>
+    </div>
+    <h2 class="section-title">Four content scripts,<br>one shared price catalog</h2>
+    <p class="section-sub section-sub-light">Everything updates live — no page reload when you flip currency or touch the chipset filter.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <figure class="feature-figure">
+          <img src="img/inline-badges-overview.png" alt="Axis Product Selector showing M32, M42, and M43 series cards, every one with an ARTPEC-8 chipset badge and a yellow USD price badge">
+        </figure>
+        <div class="feature-body">
+          <div class="feature-kicker">FEATURE / 01</div>
+          <h3>Inline MSRP + chipset badges</h3>
+          <p>Every recognized product tile gets a yellow price badge — hover for the Axis part number — plus a chipset label where CamStreamer has data, with a checkmark when that chipset runs CamStreamer ACAPs.</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <figure class="feature-figure feature-figure-inset">
+          <img src="img/popup-search.png" alt="Extension popup with USD/EUR currency toggle, search box, and matched models with part numbers and prices" style="width: 62%; max-width: 340px;">
+        </figure>
+        <div class="feature-body">
+          <div class="feature-kicker">FEATURE / 02</div>
+          <h3>Currency + lookup from the toolbar</h3>
+          <p>One click switches <strong>$ USD / € EUR</strong> everywhere at once — or search the full catalog by model name or part number, on any page.</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <figure class="feature-figure feature-figure-inset">
+          <img src="img/chipset-filter-detail.png" alt="Floating chipset filter panel with checkboxes for ARTPEC families and Ambarella, plus a CamStreamer ACAPs preset" style="width: 70%; max-width: 380px;">
+        </figure>
+        <div class="feature-body">
+          <div class="feature-kicker">FEATURE / 03</div>
+          <h3>Multi-select chipset filter</h3>
+          <p>ARTPEC-9 / -8 / -6-7 / older / Ambarella, all at once — unlike the site's single-select dropdown. One click on <strong>CamStreamer ACAPs</strong> selects every chipset family the apps actually run on.</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <figure class="feature-figure">
+          <img src="img/search-results-badge.png" alt="axis.com search results for P1388, each result title ending in a yellow EUR price badge">
+        </figure>
+        <div class="feature-body">
+          <div class="feature-kicker">FEATURE / 04</div>
+          <h3>Badges on axis.com search too</h3>
+          <p>Search for a model (<code>M1137</code>) or a whole series (<code>Q35</code>) — titles get an exact price, a variant range, or a "from $X" badge.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sorting" id="sorting">
+  <div class="wrap">
+    <div class="eyebrow-row">
+      <span class="eyebrow eyebrow-dark">02 — SORTING</span>
+      <span class="rule rule-dark"></span>
+    </div>
+    <h2 class="section-title">Sort series by cheapest price</h2>
+    <p class="section-sub section-sub-dark">An optional toggle re-ranks every series so the one with the cheapest currently-visible product floats to the top — recalculated live as you filter by chipset.</p>
+    <div class="compare">
+      <figure>
+        <div class="compare-frame off">
+          <img src="img/sort-before.png" alt="Sort series by cheapest price unchecked; AXIS M11 series is followed by AXIS M30 series">
+        </div>
+        <figcaption><span class="state-tag off">OFF</span> Series stay in the Product Selector's own default order (M11 → M30 …).</figcaption>
+      </figure>
+      <figure>
+        <div class="compare-frame on">
+          <img src="img/sort-after.png" alt="Sort series by cheapest price checked; AXIS M11 series is now followed by Modular cameras, from $529">
+        </div>
+        <figcaption><span class="state-tag on">ON</span> Modular cameras (from $529) jumps ahead of M30 — now the cheapest visible series.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="install" id="install">
+  <div class="wrap">
+    <div class="eyebrow-row">
+      <span class="eyebrow eyebrow-light">03 — INSTALL</span>
+      <span class="rule rule-light"></span>
+    </div>
+    <h2 class="section-title">Load it unpacked</h2>
+    <p class="section-sub section-sub-light">Not published to the Chrome Web Store, so it loads like any local dev build. Grab a packaged copy from the <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension/releases" target="_blank" rel="noopener" style="font-weight:600">latest release</a>, or clone the <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener" style="font-weight:600">source repo</a> directly.</p>
+    <div class="install-grid">
+      <ol class="steps">
+        <li><span class="step-num">1</span><span class="step-text">Download and unzip the <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension/releases" target="_blank" rel="noopener">latest release</a>.</span></li>
+        <li><span class="step-num">2</span><span class="step-text">Open <code>chrome://extensions</code> in Chrome.</span></li>
+        <li><span class="step-num">3</span><span class="step-text">Turn on <strong>Developer mode</strong> (top-right toggle).</span></li>
+        <li><span class="step-num">4</span><span class="step-text">Click <strong>Load unpacked</strong> and select the <code>axis-msrp-extension</code> folder.</span></li>
+        <li><span class="step-num">5</span><span class="step-text">Open the <a href="https://www.axis.com/support/tools/product-selector" target="_blank" rel="noopener">Product Selector</a> — badges and the chipset filter appear automatically.</span></li>
+        <li><span class="step-num">6</span><span class="step-text">Click the extension icon any time to flip currency or look up a model by name or part number.</span></li>
+      </ol>
+      <figure class="install-shot">
+        <img src="img/install-load-unpacked.png" alt="Annotated chrome://extensions screenshot showing Load unpacked, selecting the extension folder, and the installed extension">
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="sources" id="sources">
+  <div class="wrap">
+    <div class="eyebrow-row">
+      <span class="eyebrow eyebrow-light">04 — DATA SOURCES</span>
+      <span class="rule rule-light"></span>
+    </div>
+    <h2 class="section-title" style="margin-bottom:44px;">Where the numbers come from</h2>
+    <div class="sources-grid">
+      <div class="source-card">
+        <div class="source-tag light">PRICES / USD</div>
+        <p>Axis Q1 2026 US "cheat sheet" MSRP price list (PDF) — 290 models, 377 SKUs.</p>
+      </div>
+      <div class="source-card">
+        <div class="source-tag light">PRICES / EUR</div>
+        <p>Axis Q1 2026 DACH "cheat sheet" MSRP price list (PDF) — 290 models, 377 SKUs.</p>
+      </div>
+      <div class="source-card">
+        <div class="source-tag dark">CHIPSETS</div>
+        <p><code>chipset-data.js</code> bundles a snapshot parsed from <a href="https://camstreamer.com/download-app-all-supported-cameras" target="_blank" rel="noopener" style="font-weight:600">camstreamer.com's supported-hardware list</a> — refreshed weekly by the background service worker, or on demand from the popup.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div class="footer-brand">
+      <div class="footer-brand-row">
+        <span class="footer-mark">A$</span>
+        <span class="name">Axis MSRP Price Overlay v1.5.9</span>
+      </div>
+      <p>Personal project — not affiliated with, endorsed by, or sponsored by Axis Communications AB. AXIS® is a trademark of Axis Communications AB. Prices are MSRP list prices, not street prices.</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension/releases" target="_blank" rel="noopener">Releases</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
