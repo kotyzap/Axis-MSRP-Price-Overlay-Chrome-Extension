@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Axis MSRP Overlay - Settings</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #1a1a1a;
+    --muted: #6b6b6b;
+    --border: #e4e4e4;
+    --accent: #ffcc33;
+    --accent-strong: #e0b400;
+    --accent-ink: #1a1a1a;
+    --header-bg: #1a1a1a;
+    --header-text: #ffffff;
+    --header-muted: #b8b8b8;
+    --error: #c8102e;
+    --card-bg: #fafafa;
+  }
+  [data-theme="dark"] {
+    --bg: #1c1c1c;
+    --text: #f0f0f0;
+    --muted: #a0a0a0;
+    --border: #333333;
+    --header-bg: #0f0f0f;
+    --error: #ff5c72;
+    --card-bg: #262626;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    padding: 16px 24px;
+    background: var(--header-bg);
+    color: var(--header-text);
+    border-bottom: 3px solid var(--accent);
+  }
+  header h1 { font-size: 18px; margin: 0; letter-spacing: 0.02em; }
+  header .sub { font-size: 12px; color: var(--header-muted); margin-top: 4px; }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+  }
+  .card h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin: 0 0 10px;
+  }
+  #currentStatus { font-size: 13px; }
+  #dropZone {
+    border: 2px dashed var(--accent-strong);
+    border-radius: 8px;
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    background: rgba(255, 204, 51, 0.06);
+    font-size: 14px;
+    color: var(--text);
+  }
+  #dropZone.dragover {
+    background: rgba(255, 204, 51, 0.25);
+  }
+  #dropZone .hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  #parseStatus {
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: var(--muted);
+    min-height: 1.2em;
+  }
+  #parseStatus.error { color: var(--error); font-weight: 700; }
+  label.field {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    margin: 12px 0 4px;
+  }
+  input[type="text"], input[type="number"], select {
+    width: 100%;
+    padding: 7px 9px;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text);
+  }
+  #mappingCard {
+    border-color: var(--accent-strong);
+  }
+  #mappingHint {
+    font-size: 12.5px;
+    margin-bottom: 10px;
+  }
+  .mapping-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .currency-choice {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-top: 6px;
+    font-size: 13px;
+  }
+  .currency-choice label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 400;
+    cursor: pointer;
+  }
+  #previewTable {
+    margin-top: 10px;
+    overflow-x: auto;
+    font-size: 11.5px;
+  }
+  #previewTable table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  #previewTable th, #previewTable td {
+    border: 1px solid var(--border);
+    padding: 4px 6px;
+    text-align: left;
+    white-space: nowrap;
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #previewTable th { background: rgba(255, 204, 51, 0.15); }
+  #useMappingBtn {
+    border: 1px solid var(--accent-strong);
+    background: var(--accent);
+    color: var(--accent-ink);
+    margin-top: 12px;
+  }
+  #fxSource { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+  #summary { font-size: 13px; margin-bottom: 10px; font-weight: 700; }
+  .section-row, .unmatched-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 3px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .unmatched-row { display: block; }
+  .unmatched-row.muted { color: var(--muted); }
+  #sectionTable, #unmatchedList {
+    max-height: 220px;
+    overflow-y: auto;
+    margin-top: 6px;
+  }
+  details summary {
+    cursor: pointer;
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 10px;
+  }
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  button {
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #applyBtn {
+    border: 1px solid var(--accent-strong);
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  #applyBtn:disabled { opacity: 0.45; cursor: default; }
+  #revertBtn {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+  }
+  #revertBtn:disabled { opacity: 0.45; cursor: default; }
+  .privacy-note {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 18px;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Axis MSRP Overlay — Monthly price update</h1>
+    <div class="sub">Drop the AXIS Price List (.xls) each month to refresh EUR and FX-derived USD prices — no reinstall needed.</div>
+  </header>
+  <main>
+    <div class="card">
+      <h2>Current status</h2>
+      <div id="currentStatus">loading…</div>
+    </div>
+
+    <div class="card">
+      <h2>Update prices</h2>
+      <div id="dropZone">
+        <div>Drop a price list (.xls/.xlsx) here, or click to choose a file</div>
+        <div class="hint">The usual AXIS Price List is recognized automatically (reads the "All products" sheet, covering every category). Any other file's columns can be mapped by hand below. Nothing is uploaded anywhere except a EUR/USD rate lookup.</div>
+      </div>
+      <input type="file" id="fileInput" accept=".xls,.xlsx" style="display:none">
+      <div id="parseStatus"></div>
+
+      <div id="mappingCard" class="card" style="display:none; margin-top: 12px;">
+        <h2>Configure columns</h2>
+        <div id="mappingHint">This file's layout wasn't recognized automatically. Pick the sheet and columns below, check the preview, then confirm.</div>
+
+        <div class="mapping-row">
+          <div>
+            <label class="field" for="sheetSelect">Sheet</label>
+            <select id="sheetSelect"></select>
+          </div>
+          <div>
+            <label class="field" for="headerRowInput">Header row (row number)</label>
+            <input type="number" id="headerRowInput" min="1" step="1">
+          </div>
+        </div>
+
+        <div class="mapping-row">
+          <div>
+            <label class="field" for="nameColSelect">Device name / model column</label>
+            <select id="nameColSelect"></select>
+          </div>
+          <div>
+            <label class="field" for="priceColSelect">Price column</label>
+            <select id="priceColSelect"></select>
+          </div>
+        </div>
+
+        <label class="field" for="partColSelect">Part / SKU number column (optional, improves matching)</label>
+        <select id="partColSelect"></select>
+
+        <label class="field">This price column is in</label>
+        <div class="currency-choice">
+          <label><input type="radio" name="mappingCurrency" id="currencyEURRadio" checked> € EUR</label>
+          <label><input type="radio" name="mappingCurrency" id="currencyUSDRadio"> $ USD</label>
+        </div>
+
+        <div id="previewTable"></div>
+
+        <button id="useMappingBtn">Use this mapping</button>
+      </div>
+
+      <div id="fxRow" style="display:none">
+        <label class="field" for="fxRateInput">EUR → USD rate</label>
+        <input type="number" id="fxRateInput" step="0.0001" min="0">
+        <div id="fxSource"></div>
+      </div>
+
+      <label class="field" for="sourceLabelInput">Source label (shown in badge tooltips)</label>
+      <input type="text" id="sourceLabelInput" placeholder="AXIS Price List, Month Year (All products sheet)">
+
+      <div id="reportSection" style="display:none">
+        <div id="summary"></div>
+        <details open>
+          <summary>Coverage by section</summary>
+          <div id="sectionTable"></div>
+        </details>
+        <details>
+          <summary>Unmatched SKUs</summary>
+          <div id="unmatchedList"></div>
+        </details>
+      </div>
+
+      <div class="actions">
+        <button id="applyBtn" disabled>Apply update</button>
+        <button id="revertBtn" disabled>Revert to bundled prices</button>
+      </div>
+
+      <div class="privacy-note">
+        Everything runs locally in your browser. The price file is parsed on this page only and never leaves your machine.
+        The only network request this page makes is a EUR/USD rate lookup to api.frankfurter.dev (ECB reference rates,
+        no API key, no camera or pricing data sent). If that lookup fails, you can type in today's rate manually.
+      </div>
+    </div>
+  </main>
+  <script src="catalog-data.js"></script>
+  <script src="vendor/xlsx.full.min.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

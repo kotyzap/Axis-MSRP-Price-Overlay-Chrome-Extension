@@ -1,26 +1,49 @@
-# Axis MSRP Price Overlay (Q2/26 MSRPs)
+# Axis MSRP Price Overlay
 
-Shows Axis MSRP list prices and CamStreamer-sourced chipset info inline on the [Axis Product Selector](https://www.axis.com/support/tools/product-selector) and on [axis.com search results](https://www.axis.com/search), with a floating chipset filter panel and a toolbar popup for looking up any model/part number.
+See Axis MSRP list prices and chipset/hardware-generation info directly on axis.com — on the Product Selector, on search results, and on every product and category page — without opening a separate price list or spec sheet.
 
-<img width="1090" height="583" alt="badge-closeup" src="https://github.com/user-attachments/assets/3e818e6c-1036-4927-8668-8b3137e58cb7" />
+Built for anyone who needs pricing and chipset info at a glance while browsing axis.com: sales and channel teams, marketing, Axis resellers and partners, and Axis employees.
 
-## Install (unpacked, since this isn't published to the Chrome Web Store)
+## What it shows, and where
+
+- **Product Selector** (axis.com/support/tools/product-selector) — every camera tile gets a price badge and, where known, a chipset label. A floating chipset filter panel lets you narrow the whole page down to specific chipset generations (e.g. only cameras with CamStreamer app support), and series can be sorted cheapest-first.
+- **axis.com search results** — searching for a model (e.g. `M1137`) or a whole series (e.g. `Q35`) appends a price badge to each matching result title, plus a chipset badge when the result names one specific model.
+- **Product and category pages** (axis.com/products/...):
+  - Category pages (e.g. a hub page like "Box cameras," or a series page like "AXIS Q17 Box Camera Series") — every product tile gets a price badge and chipset badge(s), a specific price for one model or a "from $X" range for a whole series card.
+  - The series page breadcrumb trail shows the full price range and every chipset used across that series in one place.
+  - Individual product pages get the same price + chipset badges next to the product name.
+  - The "Compare products" table on a series page gets two new rows at the top — **Chipset** and **Price** — one column per model, so you can compare cost and hardware generation right alongside every other spec.
+- **Toolbar popup** — look up any model name or Axis part number directly, with its price and chipset shown side by side.
+
+Chipset badges are grouped for readability: older ARTPEC generations collapse into "ARTPEC 3-5," CamStreamer-supported generations collapse into "ARTPEC 6-9" (marked with a ✅), and Ambarella variants are shown as "AMB" plus the model code (e.g. "AMB A5S").
+
+## Currency
+
+A € EUR / $ USD toggle in the popup switches which currency is shown everywhere — Product Selector, search, product pages, and the popup itself — instantly, with no reload needed.
+
+## Keeping prices current
+
+The extension ships with a recent Axis public price list bundled in as the default (currently Q2 2026 pricing). Axis publishes a new price list roughly every month, and refreshing is built in — no reinstall, no waiting on a new extension version:
+
+1. Click the extension icon, then the **⚙** gear button next to the theme toggle.
+2. Drag the new month's official AXIS Price List `.xls`/`.xlsx` file onto the drop zone (or click to pick the file). Everything happens locally in your browser — the file itself never leaves your machine.
+3. The standard AXIS Price List format is recognized and mapped automatically. For anything else (a different layout, a one-off export), a simple column-mapping screen lets you point out which column is the model name, which is the price, and so on, with a live preview before anything is applied.
+4. Before committing, you'll see a coverage report — how many products matched, broken down by category, and anything that didn't match — so you know exactly what changed.
+5. **Revert to bundled prices** is always available if you want to go back to the default data that shipped with the extension.
+
+## Keeping chipset info current
+
+Chipset labels are sourced from CamStreamer's published camera-compatibility list and refresh automatically about once a week. A manual **Update** button in the popup refreshes it on demand at any time.
+
+## Installing
+
+This extension isn't published to the Chrome Web Store, so it's installed as an unpacked extension:
 
 1. Open `chrome://extensions` in Chrome.
 2. Turn on **Developer mode** (top-right toggle).
-3. Click **Load unpacked** and select this `axis-msrp-extension` folder.
-4. Open the [Product Selector](https://www.axis.com/support/tools/product-selector) — each recognized product tile gets a yellow MSRP badge (hover for the Axis part number) and, where known, a small dark chipset label above it. A floating "Chipset filter" panel appears bottom-right — check ARTPEC-9/8/6-7/etc. to hide everything else (multi-select, unlike the site's own single-select "System-on-chip" dropdown), or click **CamStreamer ACAPs (ARTPEC 6–9)** to instantly select the three chipset families CamStreamer apps run on (the answer to "what's the cheapest camera that supports CamStreamer ACAPs").
-5. Search [axis.com/search](https://www.axis.com/search?q=M1137) for a model name (e.g. `M1137`) or a whole series (e.g. `M11` or `Q35`) — each result whose bold title names a recognized model gets a yellow price badge appended to the end of that title: an exact price (or a variant range) for one specific model, or "from $X" when the title only names a series/family spanning several models.
-6. Click the extension icon and use the **$ USD / € EUR** toggle at the top of the popup (USD is the default) to switch which currency shows everywhere — Product Selector, search results, and the popup's own model search all update immediately, no reload needed.
+3. Click **Load unpacked** and select this folder.
+4. Visit the Product Selector, axis.com search, or any axis.com product/category page to see it in action.
 
-## Data sources
+### Packaging note
 
-- **Prices (USD)** — `catalog-data.js` bundles 290 models / 377 SKUs extracted from Axis's Q1 2026 "cheat sheet" price list PDF (MSRP, USD). Coverage isn't 100%: a handful of very new SKUs, some VMS software licenses, and a few accessory items aren't priced individually in that PDF. To refresh with a newer price list, regenerate `catalog-data.js` from the new PDF and reload the extension.
-- **Prices (EUR)** — the same file also carries an `msrp_eur` figure per SKU, joined from the Axis EE (Eastern Europe) January 2026 price list by part number, with a same-model-name fallback for the handful of PTZ SKUs that use different region-specific part numbers for 50Hz/60Hz variants. That source only covers actual camera products (dome/box/modular/PTZ/panoramic/thermal/bullet/explosion-protected) — non-camera categories like 2N, video recorders, network audio, access control, encoders, and accessories simply have no EUR data, since they weren't in the uploaded price list (it's the "Camera" sheet of a larger multi-tab spreadsheet). When a specific SKU has no EUR price, no badge is shown for it in EUR mode rather than guessing.
-- **Chipsets** — `chipset-data.js` bundles an initial snapshot (579 models) parsed from [camstreamer.com's supported-camera list](https://camstreamer.com/download-app-all-supported-cameras). This isn't an Axis-published spec; it's inferred from which CamStreamer app build (and CPU architecture) each camera runs, since CamStreamer only ships one binary per chipset family. Two consequences: only cameras CamStreamer supports have a chipset shown (no storage/audio/access-control/etc. devices, and no brand-new unreleased models), and older firmware-era ARTPEC-6 and ARTPEC-7 cameras are reported as a combined "ARTPEC-6/7" since CamStreamer's own compatibility data doesn't separate them.
-
-## Keeping chipset data current
-
-- The background service worker refreshes it automatically once a week.
-- Click **Update** next to "Chipset data (CamStreamer)" in the popup to refresh on demand at any time.
-- Both paths just re-fetch and re-parse the CamStreamer page live — no reinstall needed. Prices, by contrast, are static until you regenerate `catalog-data.js` from a new PDF.
+If this is ever zipped up and uploaded through the Chrome Web Store developer dashboard (rather than loaded unpacked), the dashboard enforces a **132-character limit on `manifest.json`'s `description` field** — longer than that, and the upload is rejected with "The description field in manifest is too long." Keep any future edits to `description` under that limit.

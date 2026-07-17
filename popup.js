@@ -1,15 +1,93 @@
 (function () {
   const MODELS = (typeof AXIS_CATALOG !== "undefined" && AXIS_CATALOG.models) || {};
-  const flat = [];
-  for (const model in MODELS) {
-    for (const v of MODELS[model]) {
-      if (v.msrp == null) continue;
-      flat.push({ model, ...v });
+
+  // ---------------------------------------------------------------------
+  // Chipset lookup (CamStreamer supported-camera data) - same matching
+  // approach as content.js/search-content.js, just keyed directly off each
+  // catalog model name instead of a scraped page-title string.
+  // ---------------------------------------------------------------------
+
+  let CHIPSETS = (typeof CHIPSET_DATA !== "undefined" && CHIPSET_DATA.chipsets) || {};
+  const CAMSTREAMER_ACAPS_PRESET = ["ARTPEC-9", "ARTPEC-8", "ARTPEC-6/7"];
+
+  function normalizeBare(s) {
+    return (s || "")
+      .toUpperCase()
+      .replace(/®|™/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/^AXIS\s+/, "");
+  }
+
+  let chipsetIndex = new Map();
+  let sortedChipsetKeys = [];
+  function rebuildChipsetIndex() {
+    chipsetIndex = new Map();
+    for (const key of Object.keys(CHIPSETS)) {
+      chipsetIndex.set(normalizeBare(key), CHIPSETS[key]);
+    }
+    sortedChipsetKeys = Array.from(chipsetIndex.keys()).sort((a, b) => b.length - a.length);
+  }
+  rebuildChipsetIndex();
+
+  function lookupChipset(norm) {
+    if (chipsetIndex.has(norm)) return chipsetIndex.get(norm);
+    for (const key of sortedChipsetKeys) {
+      if (norm === key || norm.startsWith(key + " ") || norm.startsWith(key + "-")) {
+        return chipsetIndex.get(key);
+      }
+    }
+    let bestKey = null;
+    for (const key of sortedChipsetKeys) {
+      if (key.startsWith(norm + " ") && (!bestKey || key.length < bestKey.length)) {
+        bestKey = key;
+      }
+    }
+    return bestKey ? chipsetIndex.get(bestKey) : null;
+  }
+
+  function chipsetFor(displayName) {
+    const norm = normalizeBare(displayName);
+    const direct = lookupChipset(norm);
+    if (direct) return direct;
+    // See content.js for the rationale - Axis marine/stainless "S" variants
+    // (Q3538-SLVE vs base Q3538-LVE) aren't always listed separately by
+    // CamStreamer, but share the same chipset when they are.
+    const demarined = norm.replace(/-S([A-Z]+)\b/, "-$1");
+    return demarined !== norm ? lookupChipset(demarined) : null;
+  }
+
+  // Applies a chrome.storage.local "catalogOverride" record (written by the
+  // settings/options page after a monthly .xls drop) onto the bundled
+  // catalog in place, keyed by each variant's own part_number. Must run
+  // before `flat` is built below, since flat holds spread copies of each
+  // variant - mutating MODELS afterwards wouldn't reach it.
+  function applyCatalogOverride(override) {
+    if (!override || !override.overrides) return;
+    for (const model in MODELS) {
+      for (const v of MODELS[model]) {
+        const o = v.part_number && override.overrides[v.part_number];
+        if (o) {
+          if (o.msrp_eur !== undefined) v.msrp_eur = o.msrp_eur;
+          if (o.msrp !== undefined) v.msrp = o.msrp;
+          if (o.msrp_display !== undefined) v.msrp_display = o.msrp_display;
+        }
+      }
     }
   }
 
-  document.getElementById("countLabel").textContent =
-    Object.keys(MODELS).length + " models / " + flat.length + " SKUs loaded";
+  let flat = [];
+  function buildFlat() {
+    flat = [];
+    for (const model in MODELS) {
+      for (const v of MODELS[model]) {
+        if (v.msrp == null) continue;
+        flat.push({ model, ...v });
+      }
+    }
+    document.getElementById("countLabel").textContent =
+      Object.keys(MODELS).length + " models / " + flat.length + " SKUs loaded";
+  }
 
   function fmt(n, currency) {
     const symbol = currency === "EUR" ? "€" : "$";
@@ -19,7 +97,7 @@
   const resultsEl = document.getElementById("results");
   const searchEl = document.getElementById("search");
 
-  let currentCurrency = "USD";
+  let currentCurrency = "EUR";
 
   function render(items) {
     resultsEl.innerHTML = "";
@@ -38,8 +116,11 @@
             ? fmt(it.msrp_eur, "EUR")
             : "— (no EUR data)"
           : fmt(it.msrp, "USD");
+      const chipset = chipsetFor(it.model);
+      const chipsetText = chipset ? chipset + (CAMSTREAMER_ACAPS_PRESET.includes(chipset) ? " ✅" : "") : "";
       row.innerHTML =
         '<span class="price">' + priceText + '</span>' +
+        (chipset ? '<span class="chipset">' + chipsetText + '</span>' : '') +
         '<div class="model">' + label + '</div>' +
         '<div class="meta">' + (it.part_number || "") + (it.section ? " · " + it.section : "") + '</div>';
       frag.appendChild(row);
@@ -59,14 +140,13 @@
   }
 
   searchEl.addEventListener("input", () => render(search(searchEl.value)));
-  render(search(""));
 
-  // ---- Currency toggle (USD default / EUR) ----
+  // ---- Currency toggle (EUR default / USD) ----
   const usdBtn = document.getElementById("currencyUSD");
   const eurBtn = document.getElementById("currencyEUR");
 
   function setCurrency(next, persist) {
-    currentCurrency = next === "EUR" ? "EUR" : "USD";
+    currentCurrency = next === "USD" ? "USD" : "EUR";
     usdBtn.classList.toggle("active", currentCurrency === "USD");
     eurBtn.classList.toggle("active", currentCurrency === "EUR");
     render(search(searchEl.value));
@@ -74,14 +154,45 @@
       chrome.storage.local.set({ axisCurrency: currentCurrency });
     }
   }
-
-  if (chrome.storage && chrome.storage.local) {
-    chrome.storage.local.get("axisCurrency", (r) => {
-      if (r.axisCurrency === "EUR") setCurrency("EUR", false);
-    });
-  }
   usdBtn.addEventListener("click", () => setCurrency("USD", true));
   eurBtn.addEventListener("click", () => setCurrency("EUR", true));
+
+  // ---- Startup: apply any stored monthly price override before building the
+  // searchable list, then read the saved currency choice, then do the first render.
+  if (chrome.storage && chrome.storage.local) {
+    chrome.storage.local.get(["catalogOverride", "axisCurrency", "chipsetData"], (r) => {
+      applyCatalogOverride(r.catalogOverride);
+      buildFlat();
+      if (r.chipsetData && Object.keys(r.chipsetData).length > 0) {
+        CHIPSETS = r.chipsetData;
+        rebuildChipsetIndex();
+      }
+      if (r.axisCurrency === "USD") setCurrency("USD", false);
+      render(search(""));
+    });
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area !== "local") return;
+      if (changes.catalogOverride) {
+        applyCatalogOverride(changes.catalogOverride.newValue);
+        buildFlat();
+        render(search(searchEl.value));
+      }
+      if (changes.chipsetData) {
+        CHIPSETS = changes.chipsetData.newValue || {};
+        rebuildChipsetIndex();
+        render(search(searchEl.value));
+      }
+    });
+  } else {
+    buildFlat();
+    render(search(""));
+  }
+
+  // ---- Settings (gear) button - opens the monthly price-update page ----
+  const settingsBtn = document.getElementById("settingsBtn");
+  settingsBtn.addEventListener("click", () => {
+    if (chrome.runtime.openOptionsPage) chrome.runtime.openOptionsPage();
+  });
 
   const themeBtn = document.getElementById("themeToggle");
   chrome.storage && chrome.storage.local

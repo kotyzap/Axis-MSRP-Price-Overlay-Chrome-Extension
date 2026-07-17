@@ -13,6 +13,8 @@
   // already-shipped Product Selector overlay.
 
   const MODELS = (typeof AXIS_CATALOG !== "undefined" && AXIS_CATALOG.models) || {};
+  let CHIPSETS = (typeof CHIPSET_DATA !== "undefined" && CHIPSET_DATA.chipsets) || {};
+  const CAMSTREAMER_ACAPS_PRESET = ["ARTPEC-9", "ARTPEC-8", "ARTPEC-6/7"];
 
   function normalize(s) {
     return (s || "")
@@ -35,9 +37,10 @@
     return symbol + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  // "USD" (default) uses each variant's msrp field; "EUR" uses msrp_eur
-  // (Axis Q1 2026 DACH "cheat sheet" price list, camera products only).
-  let currentCurrency = "USD";
+  // "EUR" (default) uses msrp_eur (AXIS Price List, July 2026, camera
+  // products only); "USD" uses each variant's msrp field, which for those
+  // SKUs is an FX-derived figure, not an independent Axis USD price list.
+  let currentCurrency = "EUR";
   function priceField() {
     return currentCurrency === "EUR" ? "msrp_eur" : "msrp";
   }
@@ -51,6 +54,50 @@
 
   // Bare (no "AXIS " prefix) keys, used for the whole-series/family fallback below.
   const bareEntries = modelKeys.map((key) => ({ bare: normalizeBare(key), variants: MODELS[key] }));
+
+  // ---------------------------------------------------------------------
+  // Chipset matching (CamStreamer supported-camera data) - identical
+  // approach to content.js's chipsetFor, applied to the same AXIS-prefixed
+  // segment used for price matching rather than a scraped card name.
+  // ---------------------------------------------------------------------
+
+  let chipsetIndex = new Map();
+  let sortedChipsetKeys = [];
+  function rebuildChipsetIndex() {
+    chipsetIndex = new Map();
+    for (const key of Object.keys(CHIPSETS)) {
+      chipsetIndex.set(normalizeBare(key), CHIPSETS[key]);
+    }
+    sortedChipsetKeys = Array.from(chipsetIndex.keys()).sort((a, b) => b.length - a.length);
+  }
+  rebuildChipsetIndex();
+
+  function lookupChipset(norm) {
+    if (chipsetIndex.has(norm)) return chipsetIndex.get(norm);
+    for (const key of sortedChipsetKeys) {
+      if (norm === key || norm.startsWith(key + " ") || norm.startsWith(key + "-")) {
+        return chipsetIndex.get(key);
+      }
+    }
+    let bestKey = null;
+    for (const key of sortedChipsetKeys) {
+      if (key.startsWith(norm + " ") && (!bestKey || key.length < bestKey.length)) {
+        bestKey = key;
+      }
+    }
+    return bestKey ? chipsetIndex.get(bestKey) : null;
+  }
+
+  function chipsetFor(displayName) {
+    const norm = normalizeBare(displayName);
+    const direct = lookupChipset(norm);
+    if (direct) return direct;
+    // See content.js for the rationale - Axis marine/stainless "S" variants
+    // (Q3538-SLVE vs base Q3538-LVE) aren't always listed separately by
+    // CamStreamer, but share the same chipset when they are.
+    const demarined = norm.replace(/-S([A-Z]+)\b/, "-$1");
+    return demarined !== norm ? lookupChipset(demarined) : null;
+  }
 
   function findMatch(displayName) {
     const norm = normalize(displayName);
@@ -74,6 +121,24 @@
 
   function isBulkPack(v) {
     return !!(v.note && /\bpcs\b/i.test(v.note));
+  }
+
+  // Applies a chrome.storage.local "catalogOverride" record (written by the
+  // options page after a monthly .xls drop) onto the bundled catalog in
+  // place, keyed by each variant's own part_number - see content.js for the
+  // identical logic on the Product Selector page.
+  function applyCatalogOverride(override) {
+    if (!override || !override.overrides) return;
+    for (const model in MODELS) {
+      for (const v of MODELS[model]) {
+        const o = v.part_number && override.overrides[v.part_number];
+        if (o) {
+          if (o.msrp_eur !== undefined) v.msrp_eur = o.msrp_eur;
+          if (o.msrp !== undefined) v.msrp = o.msrp;
+          if (o.msrp_display !== undefined) v.msrp_display = o.msrp_display;
+        }
+      }
+    }
   }
 
   function pickVariant(match) {
@@ -110,7 +175,7 @@
     const picked = pickVariant(match);
     if (!picked) return null;
     const field = picked.field;
-    const sourceLabel = currentCurrency === "EUR" ? "Axis DACH price list (Q1 2026, EUR)" : "Axis MSRP (Q1 2026 price list)";
+    const sourceLabel = currentCurrency === "EUR" ? "AXIS Price List (Jul 2026, EUR)" : "FX-derived from AXIS Price List (Jul 2026, EUR)";
 
     if (picked.single) {
       const v = picked.single;
@@ -159,7 +224,7 @@
       }
     }
     if (!cheapest) return null;
-    const sourceLabel = currentCurrency === "EUR" ? "Axis DACH price list (Q1 2026, EUR)" : "Axis MSRP (Q1 2026 price list)";
+    const sourceLabel = currentCurrency === "EUR" ? "AXIS Price List (Jul 2026, EUR)" : "FX-derived from AXIS Price List (Jul 2026, EUR)";
     return {
       text: "from " + fmtPrice(cheapest[field], currentCurrency),
       title: sourceLabel + " — cheapest of " + count + " matched " + prefix + "-series SKUs",
@@ -175,12 +240,6 @@
     const idx = rawTitle.search(/\bAXIS\b/i);
     if (idx === -1) return null;
     return rawTitle.slice(idx).trim();
-  }
-
-  function priceBadgeForTitle(rawTitle) {
-    const segment = extractAxisSegment(rawTitle);
-    if (!segment) return null;
-    return specificPriceBadge(segment) || seriesFromBadge(segment);
   }
 
   // ---------------------------------------------------------------------
@@ -200,8 +259,28 @@
       if (!anchor || anchor.hasAttribute(PROCESSED_ATTR)) return;
       anchor.setAttribute(PROCESSED_ATTR, "1");
 
-      const badge = priceBadgeForTitle(anchor.textContent.trim());
+      const segment = extractAxisSegment(anchor.textContent.trim());
+      if (!segment) return;
+
+      // Chipset is only attached when the title names one specific model
+      // (Mode A) - a whole-series "from $X" result can span multiple
+      // chipsets, so showing just one there would be misleading.
+      const specific = specificPriceBadge(segment);
+      const badge = specific || seriesFromBadge(segment);
       if (!badge) return;
+
+      if (specific) {
+        const chipset = chipsetFor(segment);
+        if (chipset) {
+          const acap = CAMSTREAMER_ACAPS_PRESET.includes(chipset);
+          const chipsetSpan = document.createElement("span");
+          chipsetSpan.className = "axis-search-chipset-badge";
+          chipsetSpan.textContent = chipset + (acap ? " ✅" : "");
+          chipsetSpan.title =
+            "Chipset (via CamStreamer app-compatibility data): " + chipset + (acap ? " — CamStreamer Support" : "");
+          anchor.appendChild(chipsetSpan);
+        }
+      }
 
       const span = document.createElement("span");
       span.className = "axis-search-price-badge";
@@ -244,23 +323,40 @@
   function refreshAllBadges() {
     document.querySelectorAll(TITLE_SELECTOR + "[" + PROCESSED_ATTR + "]").forEach((anchor) => {
       anchor.removeAttribute(PROCESSED_ATTR);
-      const existing = anchor.querySelector(".axis-search-price-badge");
-      if (existing) existing.remove();
+      const existingPrice = anchor.querySelector(".axis-search-price-badge");
+      if (existingPrice) existingPrice.remove();
+      const existingChipset = anchor.querySelector(".axis-search-chipset-badge");
+      if (existingChipset) existingChipset.remove();
     });
     injectAll();
   }
 
   if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
-    chrome.storage.local.get(["axisCurrency"], (res) => {
-      if (res && res.axisCurrency === "EUR") {
-        currentCurrency = "EUR";
-        refreshAllBadges();
+    chrome.storage.local.get(["axisCurrency", "catalogOverride", "chipsetData"], (res) => {
+      if (res && res.axisCurrency === "USD") {
+        currentCurrency = "USD";
       }
+      applyCatalogOverride(res && res.catalogOverride);
+      if (res && res.chipsetData && Object.keys(res.chipsetData).length > 0) {
+        CHIPSETS = res.chipsetData;
+        rebuildChipsetIndex();
+      }
+      refreshAllBadges();
     });
     if (chrome.storage.onChanged) {
       chrome.storage.onChanged.addListener((changes, area) => {
-        if (area === "local" && changes.axisCurrency) {
+        if (area !== "local") return;
+        if (changes.axisCurrency) {
           currentCurrency = changes.axisCurrency.newValue === "EUR" ? "EUR" : "USD";
+          refreshAllBadges();
+        }
+        if (changes.catalogOverride) {
+          applyCatalogOverride(changes.catalogOverride.newValue);
+          refreshAllBadges();
+        }
+        if (changes.chipsetData) {
+          CHIPSETS = changes.chipsetData.newValue || {};
+          rebuildChipsetIndex();
           refreshAllBadges();
         }
       });

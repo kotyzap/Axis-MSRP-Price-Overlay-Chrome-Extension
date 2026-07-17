@@ -1,0 +1,131 @@
+/* Badges appended on axis.com product category pages (e.g.
+   /products/axis-q17-series) and individual product pages (e.g.
+   /products/axis-q1728). Each price/chipset badge sits on its own centered
+   line, in a small block placed right under the product name/tagline/series
+   heading it belongs to. */
+
+.axis-product-badges-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  width: 100%;
+}
+
+/* Category/product nav-card tiles (both a whole-series "deck" card on a hub
+   page like /products/box-cameras, and an individual model card on a series
+   page like /products/axis-q17-series) - pinned to the top-center of the
+   card, over the product image, instead of appended after the
+   tagline/count text below. That bottom text varies in length card to
+   card, and on hub pages ".nav-card__product-count" is itself already
+   absolutely positioned at the card's own bottom edge by the site's CSS -
+   anchoring to the top instead sidesteps any collision with it entirely.
+   The card itself (`a.nav-card`) is already position:relative. */
+.axis-product-badges-row--top-of-card {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: 0;
+  margin-top: 0;
+  z-index: 5;
+  /* Badges are decorative, not interactive - let clicks pass through to the
+     card's own link underneath rather than needing a href/target of their own. */
+  pointer-events: none;
+}
+
+.axis-product-price-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(255, 204, 51, 0.85);
+  border-radius: 3px;
+  white-space: nowrap;
+  cursor: help;
+}
+
+.axis-product-chipset-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  background-color: #1a1a1a;
+  border-radius: 3px;
+  white-space: nowrap;
+  cursor: help;
+}
+
+/* Individual product page (e.g. /products/axis-m1137-mk-ii) - the h1 and the
+   tagline/bullet list right under it are both left-aligned, flush against
+   the page's left margin, so a centered badge row in between reads as a
+   stray floating box rather than part of that column. Laid out as one
+   left-aligned inline line instead - same width-content sizing as the
+   breadcrumb version, positioned right where the tagline expects it. */
+.axis-product-badges-row--product-page {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  width: auto;
+  gap: 8px;
+  margin: 10px 0 4px;
+}
+
+/* The series-page hero heading (e.g. "AXIS Q17 Box Camera Series") isn't
+   itself centered on the page, so its "from $X to $Y" range badge is
+   left-aligned under it instead of centered, to match the heading's own
+   alignment rather than looking oddly indented. Only used as a fallback
+   when the page has no breadcrumb trail to attach to instead (see below). */
+.axis-product-series-header-badges {
+  align-items: flex-start;
+  margin-top: 10px;
+}
+
+/* Series page breadcrumb trail (e.g. "Network cameras / Box cameras /
+   [chipset] [from $X to $Y]") - the price/chipset badges are appended as
+   one more trailing crumb rather than under the heading. Sized noticeably
+   bigger than the plain badges elsewhere (badge and breadcrumb text are
+   normally quite small) so the range reads clearly at a glance. */
+.axis-product-series-breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px;
+}
+
+.axis-product-series-breadcrumb-sep {
+  color: rgba(0, 0, 0, 0.4);
+  font-weight: 400;
+  margin-right: 4px;
+}
+
+.axis-product-series-breadcrumb-item .axis-product-price-badge {
+  font-size: 18px;
+  padding: 4px 14px;
+}
+
+.axis-product-series-breadcrumb-item .axis-product-chipset-badge {
+  font-size: 14px;
+  padding: 4px 14px;
+}
+
+/* "Compare products" table (series page) - Chipset/Price rows added at the
+   top, above every spec row the site itself provides. A light yellow tint
+   on the row (rather than on the table__row-header cell, to match the
+   site's own "differs" row highlight convention) sets these two rows apart
+   as extension-added content at a glance. */
+.axis-product-compare-row {
+  background-color: rgba(255, 204, 51, 0.08);
+}
+
+.axis-product-compare-badge {
+  font-size: 12px;
+  padding: 3px 10px;
+}

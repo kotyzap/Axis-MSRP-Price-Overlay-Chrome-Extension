@@ -59,7 +59,7 @@
     color: var(--header-muted);
     margin-top: 2px;
   }
-  #themeToggle {
+  #themeToggle, #settingsBtn {
     border: 1px solid rgba(255, 255, 255, 0.3);
     background: transparent;
     color: var(--header-text);
@@ -67,6 +67,10 @@
     padding: 3px 8px;
     font-size: 11px;
     cursor: pointer;
+  }
+  .header-actions {
+    display: flex;
+    gap: 6px;
   }
   .search-wrap {
     padding: 10px 14px;
@@ -102,6 +106,18 @@
     font-weight: 700;
     color: var(--accent-ink);
     background: rgba(255, 204, 51, 0.85);
+  }
+  .row .chipset {
+    float: right;
+    display: inline-block;
+    margin-right: 6px;
+    padding: 1px 8px;
+    border-radius: 3px;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #ffffff;
+    background: rgba(26, 26, 26, 0.85);
+    white-space: nowrap;
   }
   footer {
     padding: 8px 14px 12px;
@@ -194,13 +210,16 @@
       <h1>Axis MSRP Overlay</h1>
       <div class="sub" id="countLabel">loading…</div>
     </div>
-    <button id="themeToggle">🌓</button>
+    <div class="header-actions">
+      <button id="settingsBtn" title="Update monthly prices">⚙</button>
+      <button id="themeToggle" title="Toggle light/dark theme">🌓</button>
+    </div>
   </header>
   <div class="currency-section">
     <span class="label">Currency</span>
     <div class="currency-toggle">
-      <button id="currencyUSD" class="active">$ USD</button>
-      <button id="currencyEUR">€ EUR</button>
+      <button id="currencyUSD">$ USD</button>
+      <button id="currencyEUR" class="active">€ EUR</button>
     </div>
   </div>
   <div class="search-wrap">
@@ -215,9 +234,10 @@
     <div class="status" id="chipsetStatus">loading…</div>
   </div>
   <footer>
-    Prices are Axis MSRP (list price), not street price. USD is from the Axis Q1 2026 US "cheat sheet" price list; EUR is from the Axis Q1 2026 DACH "cheat sheet" price list (camera products only - EUR isn't available for non-camera categories like 2N, recorders, or accessories). Chipset info is sourced from CamStreamer's published app-compatibility list, not Axis. None of this refreshes automatically except chipset data via the weekly background check or the Update button above.
+    Prices are Axis MSRP (list price), not street price. EUR is from the AXIS Price List, July 2026 (camera products only - EUR isn't available for non-camera categories like 2N, recorders, or accessories). USD for those same products is calculated from the EUR price at the EUR/USD rate in effect when this list was last generated (1 EUR ≈ 1.1387 USD, per xe.com on 2026-07-14) - it is not an independently published Axis USD price list, so treat it as an estimate. Chipset info is sourced from CamStreamer's published app-compatibility list, not Axis. None of this refreshes automatically except chipset data via the weekly background check or the Update button above.
   </footer>
   <script src="catalog-data.js"></script>
+  <script src="chipset-data.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

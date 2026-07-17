@@ -26,17 +26,19 @@
     return symbol + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  // "USD" (default) uses each variant's msrp field (Axis Q1 2026 US "cheat
-  // sheet" price list); "EUR" uses msrp_eur (Axis Q1 2026 DACH "cheat sheet"
-  // price list, camera products only - see catalog-data.js for per-variant
-  // coverage).
-  let currentCurrency = "USD";
+  // "EUR" (default) uses msrp_eur (AXIS Price List, July 2026, camera
+  // products only - see catalog-data.js for per-variant coverage); "USD"
+  // uses each variant's msrp field, which for those same SKUs is now an
+  // FX-derived figure (EUR price converted at the EUR/USD rate in effect
+  // when catalog-data.js was last regenerated), not an independent Axis
+  // USD price list.
+  let currentCurrency = "EUR";
   function priceField() {
     return currentCurrency === "EUR" ? "msrp_eur" : "msrp";
   }
 
   // ---------------------------------------------------------------------
-  // Price matching (Q1 2026 Axis price list)
+  // Price matching (AXIS Price List, July 2026, EUR; USD is FX-derived)
   // ---------------------------------------------------------------------
 
   const modelKeys = Object.keys(MODELS);
@@ -70,22 +72,26 @@
     return !!(v.note && /\bpcs\b/i.test(v.note));
   }
 
-  // Video encoders (AXIS M71xx, P73xx, etc.) show up in CamStreamer's
-  // supported-hardware list with a chipset, but the resulting badge/checkmark
-  // reads as "this is a camera that runs CamStreamer ACAPs" - confusing next
-  // to an actual camera series. Look up the catalog "section" for a matched
-  // product name so encoders can be excluded from the chipset label only
-  // (their MSRP price badge is unaffected).
-  function sectionFor(name) {
-    const match = findMatch(name);
-    if (!match) return null;
-    for (const v of match.variants) {
-      if (v.section) return v.section;
+  // Applies a chrome.storage.local "catalogOverride" record (written by the
+  // options page after a monthly .xls drop) onto the bundled catalog in
+  // place, keyed by each variant's own part_number. MODELS is shared by
+  // reference with normIndex/findMatch, so this reaches every lookup path
+  // without rebuilding any index.
+  function applyCatalogOverride(override) {
+    if (!override || !override.overrides) return;
+    for (const model in MODELS) {
+      for (const v of MODELS[model]) {
+        const o = v.part_number && override.overrides[v.part_number];
+        if (o) {
+          // Only touch fields the override actually carries - a USD-sourced
+          // monthly update has no msrp_eur key, and must not blank out
+          // whatever EUR price the variant already had.
+          if (o.msrp_eur !== undefined) v.msrp_eur = o.msrp_eur;
+          if (o.msrp !== undefined) v.msrp = o.msrp;
+          if (o.msrp_display !== undefined) v.msrp_display = o.msrp_display;
+        }
+      }
     }
-    return null;
-  }
-  function isEncoderSection(section) {
-    return !!section && /encoder/i.test(section);
   }
 
   function pickVariant(match) {
@@ -118,7 +124,7 @@
     const picked = pickVariant(match);
     if (!picked) return null;
     const field = picked.field;
-    const sourceLabel = currentCurrency === "EUR" ? "Axis DACH price list (Q1 2026, EUR)" : "Axis MSRP (Q1 2026 price list)";
+    const sourceLabel = currentCurrency === "EUR" ? "AXIS Price List (Jul 2026, EUR)" : "FX-derived from AXIS Price List (Jul 2026, EUR)";
 
     if (picked.single) {
       const v = picked.single;
@@ -160,8 +166,7 @@
   }
   rebuildChipsetIndex();
 
-  function chipsetFor(displayName) {
-    const norm = normalizeBare(displayName);
+  function lookupChipset(norm) {
     if (chipsetIndex.has(norm)) return chipsetIndex.get(norm);
     for (const key of sortedChipsetKeys) {
       if (norm === key || norm.startsWith(key + " ") || norm.startsWith(key + "-")) {
@@ -175,6 +180,19 @@
       }
     }
     return bestKey ? chipsetIndex.get(bestKey) : null;
+  }
+
+  function chipsetFor(displayName) {
+    const norm = normalizeBare(displayName);
+    const direct = lookupChipset(norm);
+    if (direct) return direct;
+    // Axis stainless/marine variants insert an "S" right after the dash
+    // (e.g. Q3538-SLVE vs the base Q3538-LVE), but CamStreamer doesn't
+    // always list the marine SKU separately. When it does list both, they
+    // share the same chipset (e.g. M4337-PLVE / M4337-SPLVE are both
+    // ARTPEC-9), so falling back to the base variant here is a reasonable bet.
+    const demarined = norm.replace(/-S([A-Z]+)\b/, "-$1");
+    return demarined !== norm ? lookupChipset(demarined) : null;
   }
 
   // ---------------------------------------------------------------------
@@ -285,7 +303,7 @@
   function applyChipsetLabel(card, name) {
     const label = chipsetFor(name);
     let el = card.querySelector(".axis-chipset-badge");
-    if (!label || isEncoderSection(sectionFor(name))) {
+    if (!label) {
       if (el) el.remove();
       card.removeAttribute("data-axis-chipset");
       return;
@@ -303,7 +321,7 @@
     el.textContent = acapSupported ? label + " ✅" : label;
     el.title =
       "Chipset (via CamStreamer app-compatibility data): " + label +
-      (acapSupported ? " — supports CamStreamer ACAPs" : "");
+      (acapSupported ? " — CamStreamer Support" : "");
     card.setAttribute("data-axis-chipset", label);
   }
 
@@ -416,16 +434,17 @@
 
   // Pick up live chipset data once the background service worker has fetched it,
   // and whenever it refreshes later (weekly alarm or "Update chipset data" in the popup).
-  // Also pick up the currency choice made in the popup (default USD).
+  // Also pick up the currency choice made in the popup (default EUR).
   if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
-    chrome.storage.local.get(["chipsetData", "axisCurrency"], (res) => {
+    chrome.storage.local.get(["chipsetData", "axisCurrency", "catalogOverride"], (res) => {
       if (res && res.chipsetData && Object.keys(res.chipsetData).length > 0) {
         CHIPSETS = res.chipsetData;
         rebuildChipsetIndex();
       }
-      if (res && res.axisCurrency === "EUR") {
-        currentCurrency = "EUR";
+      if (res && res.axisCurrency === "USD") {
+        currentCurrency = "USD";
       }
+      applyCatalogOverride(res && res.catalogOverride);
       injectAll(document);
     });
     if (chrome.storage.onChanged) {
@@ -438,6 +457,12 @@
         }
         if (changes.axisCurrency) {
           currentCurrency = changes.axisCurrency.newValue === "EUR" ? "EUR" : "USD";
+          refreshPriceBadges();
+        }
+        // Written by the settings page (gear icon) after a monthly .xls
+        // drop - mutate the shared catalog objects and re-render in place.
+        if (changes.catalogOverride) {
+          applyCatalogOverride(changes.catalogOverride.newValue);
           refreshPriceBadges();
         }
       });
@@ -522,9 +547,9 @@
   // checkboxes further down, kept in sync via groupCheckboxes/syncGroupCheckboxes.
   const PRESETS = [
     {
-      label: "CamStreamer ACAPs",
+      label: "CamStreamer Support",
       members: CAMSTREAMER_ACAPS_PRESET,
-      title: "Select ARTPEC-9, ARTPEC-8, and ARTPEC-6/7 - the chipsets CamStreamer ACAPs run on",
+      title: "Select ARTPEC-9, ARTPEC-8, and ARTPEC-6/7 - the chipsets with CamStreamer Support",
     },
     {
       label: "Baseball Tracker",
