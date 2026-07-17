@@ -2,6 +2,8 @@
 
 See Axis MSRP list prices and chipset/hardware-generation info directly on axis.com — on the Product Selector, on search results, and on every product and category page — without opening a separate price list or spec sheet.
 
+<img width="70%" alt="badge-closeup" src="https://github.com/user-attachments/assets/dd3c7a60-6ddf-40f2-97f5-727dbe046a3d" />
+
 Built for anyone who needs pricing and chipset info at a glance while browsing axis.com: sales and channel teams, marketing, Axis resellers and partners, and Axis employees.
 
 ## What it shows, and where
@@ -13,9 +15,15 @@ Built for anyone who needs pricing and chipset info at a glance while browsing a
   - The series page breadcrumb trail shows the full price range and every chipset used across that series in one place.
   - Individual product pages get the same price + chipset badges next to the product name.
   - The "Compare products" table on a series page gets two new rows at the top — **Chipset** and **Price** — one column per model, so you can compare cost and hardware generation right alongside every other spec.
+
+ <img width="1387" height="623" alt="Screenshot 2026-07-17 at 14 42 05" src="https://github.com/user-attachments/assets/405fda81-351c-4d96-918c-305a2d95f287" />
+
+  
 - **Toolbar popup** — look up any model name or Axis part number directly, with its price and chipset shown side by side.
 
 Chipset badges are grouped for readability: older ARTPEC generations collapse into "ARTPEC 3-5," CamStreamer-supported generations collapse into "ARTPEC 6-9" (marked with a ✅), and Ambarella variants are shown as "AMB" plus the model code (e.g. "AMB A5S").
+
+<img width="1203" height="960" alt="sort-after" src="https://github.com/user-attachments/assets/ccdd4dec-2cf5-4a6d-9792-7c9915cbb82d" />
 
 ## Currency
 
@@ -47,3 +55,6 @@ This extension isn't published to the Chrome Web Store, so it's installed as an 
 ### Packaging note
 
 If this is ever zipped up and uploaded through the Chrome Web Store developer dashboard (rather than loaded unpacked), the dashboard enforces a **132-character limit on `manifest.json`'s `description` field** — longer than that, and the upload is rejected with "The description field in manifest is too long." Keep any future edits to `description` under that limit.
+
+<img width="1752" height="3237" alt="AXIS P13 Box Camera Series _ Axis Communications" src="https://github.com/user-attachments/assets/21ba2e7e-c969-4a85-9e9b-98fb764889de" />
+
