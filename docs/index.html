@@ -224,16 +224,20 @@
   .sorting { background: var(--bg-alt); }
 
   /* A real checkbox (not a decorative one) drives everything below it via
-     the CSS :checked + general-sibling combinator - no JS needed, and it
+     the CSS :checked + general-sibling (~) combinator - no JS needed, and it
      behaves like an actual checkbox (click, keyboard, screen reader) rather
-     than a fake button pretending to be one. */
-  .sort-toggle-row { display: flex; align-items: center; gap: 12px; margin-bottom: 26px; }
+     than a fake button pretending to be one. IMPORTANT: the ~ combinator
+     only matches elements sharing the same parent as the checkbox, so the
+     checkbox, its label, .compare-live, and .live-caption must all be
+     direct siblings of one another (not wrapped in an intermediate row div)
+     - alignment below is done with vertical-align instead of a flex wrapper. */
   .sort-checkbox {
     appearance: none; -webkit-appearance: none;
-    width: 18px; height: 18px; flex: none;
+    width: 18px; height: 18px;
     border: 1px solid var(--mute-2);
     background: var(--surface);
-    margin: 0; position: relative; cursor: pointer;
+    margin: 0 12px 26px 0; position: relative; cursor: pointer;
+    vertical-align: middle;
   }
   .sort-checkbox:checked { background: var(--ink); border-color: var(--ink); }
   .sort-checkbox:checked::after {
@@ -244,6 +248,7 @@
   }
   .sort-toggle-label {
     font-size: 15px; font-weight: 700; cursor: pointer; user-select: none;
+    display: inline-block; vertical-align: middle; margin-bottom: 26px;
   }
   .try-live-tag {
     font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.14em;
@@ -502,10 +507,8 @@
     <h2 class="section-title">Sort series by cheapest price</h2>
     <p class="section-sub">An optional toggle re-ranks every series so the one with the cheapest currently-visible product floats to the top — recalculated live as you filter by chipset. <span class="try-live-tag">TRY IT — CHECK THE BOX</span></p>
 
-    <div class="sort-toggle-row">
-      <input type="checkbox" id="sortDemo" class="sort-checkbox">
-      <label for="sortDemo" class="sort-toggle-label">Sort series by cheapest price</label>
-    </div>
+    <input type="checkbox" id="sortDemo" class="sort-checkbox">
+    <label for="sortDemo" class="sort-toggle-label">Sort series by cheapest price</label>
 
     <figure class="compare-live">
       <img class="shot-off" src="img/sort-before.png" alt="Sort series by cheapest price unchecked; AXIS M11 series is followed by AXIS M30 series">
