@@ -310,6 +310,24 @@
   .step-text strong { color: var(--ink); }
   .step-text a { font-weight: 600; }
   .install-shot { margin: 0; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--yellow); }
+  .install-cta {
+    background: var(--surface); border: 2px solid var(--ink);
+    box-shadow: 6px 6px 0 var(--yellow);
+    padding: 30px 26px; text-align: center;
+  }
+  .install-cta-mark {
+    width: 56px; height: 56px; margin: 0 auto 16px;
+    background: var(--yellow); color: var(--void-fixed);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 22px; letter-spacing: -0.02em;
+  }
+  .install-cta-name { font-weight: 800; font-size: 16.5px; margin-bottom: 5px; }
+  .install-cta-meta {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--mute); margin-bottom: 22px;
+  }
+  .install-cta .btn { width: 100%; justify-content: center; }
+  .install-cta-note { font-size: 13px; line-height: 1.55; color: var(--mute); margin: 16px 0 0; }
 
   /* ---------- Sources ---------- */
   .sources { background: var(--bg); border-top: 1px solid var(--border); }
@@ -377,7 +395,7 @@
         <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"></path></svg>
         <svg class="icon-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"></path></svg>
       </button>
-      <a class="btn-nav" href="#install">Install unpacked</a>
+      <a class="btn-nav" href="https://chromewebstore.google.com/detail/axis-msrp-price-overlay/gnegcekipfaapeboifcejnjmfemfigpl" target="_blank" rel="noopener">Add to Chrome</a>
     </nav>
   </div>
 </header>
@@ -387,7 +405,7 @@
     <div class="hero-copy">
       <div class="tag-row">
         <span class="tag tag-accent">MSRP list prices · Jul/2026</span>
-        <span class="tag">Load unpacked in Chrome</span>
+        <span class="tag">Free on the Chrome Web Store</span>
       </div>
       <h1>Every Axis price,<br><span>right on axis.com.</span></h1>
       <p class="sub">
@@ -398,11 +416,11 @@
         EUR, USD, or JPY, a field-of-view slider alongside the multi-select chipset filter, self-serve monthly price updates, and a toolbar popup that looks up any model or part number — light or dark, your call.
       </p>
       <div class="cta-row">
-        <a class="btn btn-primary" href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">
+        <a class="btn btn-primary" href="https://chromewebstore.google.com/detail/axis-msrp-price-overlay/gnegcekipfaapeboifcejnjmfemfigpl" target="_blank" rel="noopener">
           <svg viewBox="0 0 16 16"><path d="M8 1a.75.75 0 0 1 .75.75v6.69l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V1.75A.75.75 0 0 1 8 1zM2 12.5a.75.75 0 0 1 .75.75v.75c0 .28.22.5.5.5h9.5a.5.5 0 0 0 .5-.5v-.75a.75.75 0 0 1 1.5 0v.75A2 2 0 0 1 12.75 16h-9.5A2 2 0 0 1 1.25 14v-.75A.75.75 0 0 1 2 12.5z"/></svg>
-          Get the source — it's free
+          Add to Chrome — it's free
         </a>
-        <a class="btn btn-ghost" href="#install">Install unpacked</a>
+        <a class="btn btn-ghost" href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">Get the source</a>
       </div>
       <div class="stat-strip">
         <div><div class="stat-num">290</div><div class="stat-label">Models</div></div>
@@ -596,19 +614,23 @@
       <span class="eyebrow">11 — INSTALL</span>
       <span class="rule"></span>
     </div>
-    <h2 class="section-title">Install as an unpacked extension</h2>
-    <p class="section-sub">There's a <a href="https://chromewebstore.google.com/detail/axis-msrp-price-overlay/gnegcekipfaapeboifcejnjmfemfigpl" target="_blank" rel="noopener" style="font-weight:600">Chrome Web Store listing</a>, but it trails behind — <strong>v3.4.4</strong> is the latest build, and the only one with JPY, Japanese-locale support and the field-of-view filter. To get it, grab the source from the <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener" style="font-weight:600">GitHub repo</a> and point Chrome's developer mode at the folder.</p>
+    <h2 class="section-title">Install from the Chrome Web Store</h2>
+    <p class="section-sub">One click, no developer mode, and Chrome keeps it up to date from then on.</p>
     <div class="install-grid">
       <ol class="steps">
-        <li><span class="step-num">1</span><span class="step-text">Download or clone the <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">extension source</a>, then open <code>chrome://extensions</code> in Chrome.</span></li>
-        <li><span class="step-num">2</span><span class="step-text">Turn on <strong>Developer mode</strong> (top-right toggle), then click <strong>Load unpacked</strong> and select the extension folder.</span></li>
+        <li><span class="step-num">1</span><span class="step-text">Open the <a href="https://chromewebstore.google.com/detail/axis-msrp-price-overlay/gnegcekipfaapeboifcejnjmfemfigpl" target="_blank" rel="noopener">Axis MSRP Price Overlay</a> listing on the Chrome Web Store.</span></li>
+        <li><span class="step-num">2</span><span class="step-text">Click <strong>Add to Chrome</strong>, then confirm with <strong>Add extension</strong>. That's the whole install.</span></li>
         <li><span class="step-num">3</span><span class="step-text">Open the <a href="https://www.axis.com/support/tools/product-selector" target="_blank" rel="noopener">Product Selector</a> — badges, the chipset filter, and the field-of-view slider appear automatically. Already-open axis.com tabs pick it up within a moment too, no reload needed.</span></li>
         <li><span class="step-num">4</span><span class="step-text">Click the extension icon any time to flip currency (EUR/USD/JPY), look up a model, or open settings to refresh the monthly price list.</span></li>
-        <li><span class="step-num">5</span><span class="step-text">Future releases mean re-downloading the source and clicking <strong>Reload</strong> on the extension card — there's no auto-update outside the Web Store.</span></li>
+        <li><span class="step-num">5</span><span class="step-text">New releases arrive on their own — Chrome updates Web Store extensions in the background, so there's nothing to re-download.</span></li>
       </ol>
-      <figure class="install-shot">
-        <img src="img/install-load-unpacked.png" alt="Chrome's chrome://extensions page with Developer mode enabled and the Load unpacked button highlighted">
-      </figure>
+      <div class="install-cta">
+        <div class="install-cta-mark">A$</div>
+        <div class="install-cta-name">Axis MSRP Price Overlay</div>
+        <div class="install-cta-meta">Chrome Web Store · free</div>
+        <a class="btn btn-primary" href="https://chromewebstore.google.com/detail/axis-msrp-price-overlay/gnegcekipfaapeboifcejnjmfemfigpl" target="_blank" rel="noopener">Add to Chrome</a>
+        <p class="install-cta-note">Prefer to build it yourself? The full source is on <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">GitHub</a>.</p>
+      </div>
     </div>
   </div>
 </section>

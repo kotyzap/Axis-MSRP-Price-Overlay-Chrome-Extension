@@ -315,6 +315,25 @@
   .step-text strong { color: var(--ink); }
   .step-text a { font-weight: 600; }
   .install-shot { margin: 0; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--yellow); }
+  .install-side { display: flex; flex-direction: column; gap: 28px; }
+  .install-cta {
+    background: var(--surface); border: 2px solid var(--ink);
+    box-shadow: 6px 6px 0 var(--yellow);
+    padding: 30px 26px; text-align: center;
+  }
+  .install-cta-mark {
+    width: 56px; height: 56px; margin: 0 auto 16px;
+    background: var(--yellow); color: var(--void-fixed);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 22px; letter-spacing: -0.02em;
+  }
+  .install-cta-name { font-weight: 800; font-size: 16.5px; margin-bottom: 5px; }
+  .install-cta-meta {
+    font-family: 'IBM Plex Mono', 'Noto Sans JP', monospace; font-size: 11.5px; letter-spacing: 0.1em;
+    color: var(--mute); margin-bottom: 22px;
+  }
+  .install-cta .btn { width: 100%; justify-content: center; }
+  .install-cta-note { font-size: 13px; line-height: 1.6; color: var(--mute); margin: 16px 0 0; }
 
   /* ---------- Sources ---------- */
   .sources { background: var(--bg); border-top: 1px solid var(--border); }
@@ -388,7 +407,7 @@
         <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"></path></svg>
         <svg class="icon-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"></path></svg>
       </button>
-      <a class="btn-nav" href="#install">インストール</a>
+      <a class="btn-nav" href="https://chromewebstore.google.com/detail/axis-msrp-price-overlay/gnegcekipfaapeboifcejnjmfemfigpl" target="_blank" rel="noopener">Chrome に追加</a>
     </nav>
   </div>
 </header>
@@ -398,7 +417,7 @@
     <div class="hero-copy">
       <div class="tag-row">
         <span class="tag tag-accent">MSRP 定価 · 2026年7月版</span>
-        <span class="tag">パッケージ化されていない拡張機能として読み込み</span>
+        <span class="tag">Chrome ウェブストアで無料配布</span>
       </div>
       <h1>すべての Axis 価格を、<br><span>axis.com でそのまま。</span></h1>
       <p class="sub">
@@ -409,11 +428,11 @@
         EUR・USD・JPY の切り替え、複数選択できるチップセットフィルターと画角スライダー、毎月の価格表を自分で差し替えられる仕組み、任意のモデル名や品番をすぐ引けるツールバーポップアップ付き。ライトテーマ／ダークテーマもお好みで。
       </p>
       <div class="cta-row">
-        <a class="btn btn-primary" href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">
+        <a class="btn btn-primary" href="https://chromewebstore.google.com/detail/axis-msrp-price-overlay/gnegcekipfaapeboifcejnjmfemfigpl" target="_blank" rel="noopener">
           <svg viewBox="0 0 16 16"><path d="M8 1a.75.75 0 0 1 .75.75v6.69l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V1.75A.75.75 0 0 1 8 1zM2 12.5a.75.75 0 0 1 .75.75v.75c0 .28.22.5.5.5h9.5a.5.5 0 0 0 .5-.5v-.75a.75.75 0 0 1 1.5 0v.75A2 2 0 0 1 12.75 16h-9.5A2 2 0 0 1 1.25 14v-.75A.75.75 0 0 1 2 12.5z"/></svg>
-          ソースコードを入手 — 無料です
+          Chrome に追加 — 無料です
         </a>
-        <a class="btn btn-ghost" href="#install">インストール手順</a>
+        <a class="btn btn-ghost" href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">ソースコードを入手</a>
       </div>
       <div class="stat-strip">
         <div><div class="stat-num">290</div><div class="stat-label">モデル</div></div>
@@ -423,7 +442,7 @@
       </div>
     </div>
     <figure class="hero-shot">
-      <img src="img/AXIS P13 Box Camera Series _ Axis Communications.png" alt="AXIS P13 ボックス型カメラシリーズのページ。パンくずリストにチップセットバッジと「from €779.00 to €1,329.00」の価格レンジバッジ、各製品カードに価格・チップセットバッジ、製品比較表にはチップセット行と価格行が追加されている">
+      <img src="img/jp-p13-series-hero.png" alt="日本語版 axis.com の AXIS P13 Box Camera Series のページ。パンくずリストに ARTPEC 6-9 のチップセットバッジと「from ~¥14.6万 to ~¥24.8万」の価格レンジバッジ、各製品カードに円建ての価格バッジ、ページ下部の製品比較表にはチップセット行と価格行が追加されている">
     </figure>
   </div>
 </section>
@@ -476,7 +495,7 @@
 
       <div class="feature-card">
         <figure class="feature-figure feature-figure-inset">
-          <img src="img/popup-search.png" alt="拡張機能のポップアップ。通貨切り替え、検索ボックス、品番と価格付きの検索結果が並んでいる（EUR／USD のみだった旧ビルドのスクリーンショットで、v3.4.4 では同じ切り替えに ¥ JPY が加わっています）" style="width: 62%; max-width: 340px;">
+          <img src="img/jp-popup-jpy.png" alt="拡張機能のポップアップ。¥ JPY が選択され、FXレートは 1 EUR ≈ $1.1377 ／ ¥186.38。AXIS Q1728-LE などの検索結果に ARTPEC-9 のチップセットバッジと ~¥37.3万 などの円建て価格が並び、下部の注意書きは日本語に切り替わっている" style="width: 52%; max-width: 268px;">
         </figure>
         <div class="feature-body">
           <div class="feature-kicker">機能 / 02</div>
@@ -607,19 +626,28 @@
       <span class="eyebrow">11 — インストール</span>
       <span class="rule"></span>
     </div>
-    <h2 class="section-title">パッケージ化されていない拡張機能として読み込む</h2>
-    <p class="section-sub"><a href="https://chromewebstore.google.com/detail/axis-msrp-price-overlay/gnegcekipfaapeboifcejnjmfemfigpl" target="_blank" rel="noopener" style="font-weight:600">Chrome ウェブストアの掲載</a>もありますが、そちらは更新が遅れています。最新は <strong>v3.4.4</strong> で、JPY・日本語ロケール対応・画角フィルターが入っているのはこのビルドだけです。<a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener" style="font-weight:600">GitHub リポジトリ</a>からソースを取得し、Chrome のデベロッパーモードでそのフォルダーを指定してください。</p>
+    <h2 class="section-title">Chrome ウェブストアからインストール</h2>
+    <p class="section-sub">クリック 1 回で完了します。デベロッパーモードは不要で、以降は Chrome が自動で最新版に更新します。</p>
     <div class="install-grid">
       <ol class="steps">
-        <li><span class="step-num">1</span><span class="step-text"><a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">拡張機能のソース</a>をダウンロードまたはクローンし、Chrome で <code>chrome://extensions</code> を開きます。</span></li>
-        <li><span class="step-num">2</span><span class="step-text"><strong>デベロッパーモード</strong>（右上のスイッチ）をオンにし、<strong>パッケージ化されていない拡張機能を読み込む</strong>をクリックして拡張機能のフォルダーを選びます。</span></li>
+        <li><span class="step-num">1</span><span class="step-text">Chrome ウェブストアの <a href="https://chromewebstore.google.com/detail/axis-msrp-price-overlay/gnegcekipfaapeboifcejnjmfemfigpl" target="_blank" rel="noopener">Axis MSRP Price Overlay</a> のページを開きます。</span></li>
+        <li><span class="step-num">2</span><span class="step-text"><strong>Chrome に追加</strong>をクリックし、<strong>拡張機能を追加</strong>で確定します。インストールはこれだけです。</span></li>
         <li><span class="step-num">3</span><span class="step-text"><a href="https://www.axis.com/ja-jp/support/tools/product-selector" target="_blank" rel="noopener">製品セレクター</a>を開くと、バッジ・チップセットフィルター・画角スライダーが自動で表示されます。すでに開いてある axis.com のタブにも数秒で反映され、再読み込みは不要です。</span></li>
         <li><span class="step-num">4</span><span class="step-text">拡張機能のアイコンはいつでもクリックできます。通貨の切り替え（EUR／USD／JPY）、モデルの検索、設定ページを開いて毎月の価格表を更新、といった操作が可能です。</span></li>
-        <li><span class="step-num">5</span><span class="step-text">今後のリリースでは、ソースを再ダウンロードして拡張機能カードの<strong>更新</strong>をクリックしてください。ウェブストア経由でない場合、自動更新はありません。</span></li>
+        <li><span class="step-num">5</span><span class="step-text">新しいバージョンは自動的に届きます。Chrome がウェブストアの拡張機能をバックグラウンドで更新するため、再ダウンロードは必要ありません。</span></li>
       </ol>
-      <figure class="install-shot">
-        <img src="img/install-load-unpacked.png" alt="Chrome の chrome://extensions ページ。デベロッパーモードがオンで、「パッケージ化されていない拡張機能を読み込む」ボタンが強調されている">
-      </figure>
+      <div class="install-side">
+        <figure class="install-shot">
+          <img src="img/webstore-install.png" alt="Chrome ウェブストアの Axis MSRP Price Overlay のページ。評価 5.0、スクリーンショットのギャラリー、右上に拡張機能を追加するボタンが表示されている">
+        </figure>
+        <div class="install-cta">
+          <div class="install-cta-mark">A$</div>
+          <div class="install-cta-name">Axis MSRP Price Overlay</div>
+          <div class="install-cta-meta">Chrome ウェブストア · 無料</div>
+          <a class="btn btn-primary" href="https://chromewebstore.google.com/detail/axis-msrp-price-overlay/gnegcekipfaapeboifcejnjmfemfigpl" target="_blank" rel="noopener">Chrome に追加</a>
+          <p class="install-cta-note">自分でビルドしたい場合は、ソース一式を <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">GitHub</a> で公開しています。</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
