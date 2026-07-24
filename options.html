@@ -201,12 +201,50 @@
     margin-top: 18px;
     line-height: 1.5;
   }
+  /* Ko-fi support link. The button is drawn inline instead of loading Ko-fi's
+     hosted image so this page keeps making exactly one network request (the FX
+     rate lookup) and still renders with no connection at all. */
+  .kofi-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+  .kofi-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    height: 36px;
+    padding: 0 16px;
+    border-radius: 6px;
+    background: #ff5e5b;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid #e8524f;
+  }
+  .kofi-button:hover { background: #e8524f; }
+  .kofi-button svg { width: 20px; height: 20px; display: block; }
+  .kofi-button .kofi-cup { fill: #ffffff; }
+  .kofi-button .kofi-heart { fill: #ff5e5b; }
+  .kofi-button:hover .kofi-heart { fill: #e8524f; }
+  .kofi-note {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.5;
+    flex: 1 1 220px;
+    min-width: 200px;
+  }
 </style>
 </head>
 <body>
   <header>
     <h1>Axis MSRP Overlay — Monthly price update</h1>
-    <div class="sub">Drop the AXIS Price List (.xls) each month to refresh EUR and FX-derived USD prices — no reinstall needed.</div>
+    <div class="sub">Drop the AXIS Price List (.xls) each month to refresh EUR and FX-derived USD/JPY prices — no reinstall needed.</div>
   </header>
   <main>
     <div class="card">
@@ -218,7 +256,7 @@
       <h2>Update prices</h2>
       <div id="dropZone">
         <div>Drop a price list (.xls/.xlsx) here, or click to choose a file</div>
-        <div class="hint">The usual AXIS Price List is recognized automatically (reads the "All products" sheet, covering every category). Any other file's columns can be mapped by hand below. Nothing is uploaded anywhere except a EUR/USD rate lookup.</div>
+        <div class="hint">The usual AXIS Price List is recognized automatically (reads the "All products" sheet, covering every category). Any other file's columns can be mapped by hand below - including telling us what currency (EUR/USD/JPY) its price column is in. Nothing is uploaded anywhere except an FX rate lookup.</div>
       </div>
       <input type="file" id="fileInput" accept=".xls,.xlsx" style="display:none">
       <div id="parseStatus"></div>
@@ -256,6 +294,7 @@
         <div class="currency-choice">
           <label><input type="radio" name="mappingCurrency" id="currencyEURRadio" checked> € EUR</label>
           <label><input type="radio" name="mappingCurrency" id="currencyUSDRadio"> $ USD</label>
+          <label><input type="radio" name="mappingCurrency" id="currencyJPYRadio"> ¥ JPY</label>
         </div>
 
         <div id="previewTable"></div>
@@ -267,6 +306,11 @@
         <label class="field" for="fxRateInput">EUR → USD rate</label>
         <input type="number" id="fxRateInput" step="0.0001" min="0">
         <div id="fxSource"></div>
+      </div>
+
+      <div id="fxRateJpyRow" style="display:none">
+        <label class="field" for="fxRateJpyInput">EUR → JPY rate</label>
+        <input type="number" id="fxRateJpyInput" step="0.01" min="0">
       </div>
 
       <label class="field" for="sourceLabelInput">Source label (shown in badge tooltips)</label>
@@ -289,10 +333,25 @@
         <button id="revertBtn" disabled>Revert to bundled prices</button>
       </div>
 
+      <div class="kofi-row">
+        <a class="kofi-button" href="https://ko-fi.com/K3K6RR4LY" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
+            <path class="kofi-cup" d="M3 6.25A1.25 1.25 0 0 1 4.25 5h10.5A1.25 1.25 0 0 1 16 6.25v1h1.5a3.75 3.75 0 0 1 0 7.5H15.8a5.25 5.25 0 0 1-5.05 3.75H8.25A5.25 5.25 0 0 1 3 13.25v-7Zm13 6.5h1.5a2.25 2.25 0 0 0 0-4.5H16v4.5Z"/>
+            <path class="kofi-heart" d="M9.5 8.4c.72 0 1.1.42 1.28.7.18-.28.56-.7 1.28-.7.86 0 1.44.66 1.44 1.5 0 1.32-1.6 2.34-2.72 3.16-1.12-.82-2.72-1.84-2.72-3.16 0-.84.58-1.5 1.44-1.5Z"/>
+          </svg>
+          Buy me a coffee
+        </a>
+        <span class="kofi-note">
+          This extension is free and always will be. If it saves you time, a coffee at
+          <strong>ko-fi.com/K3K6RR4LY</strong> for Pavel is appreciated.
+        </span>
+      </div>
+
       <div class="privacy-note">
         Everything runs locally in your browser. The price file is parsed on this page only and never leaves your machine.
-        The only network request this page makes is a EUR/USD rate lookup to api.frankfurter.dev (ECB reference rates,
-        no API key, no camera or pricing data sent). If that lookup fails, you can type in today's rate manually.
+        The only network request this page makes is an FX rate lookup (EUR/USD, and EUR/JPY if needed) to
+        api.frankfurter.dev (ECB reference rates, no API key, no camera or pricing data sent). If that lookup fails,
+        you can type in today's rate(s) manually.
       </div>
     </div>
   </main>

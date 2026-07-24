@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Axis MSRP Price Overlay — Chrome Extension</title>
-<meta name="description" content="Axis MSRP prices and CamStreamer chipset info on the Product Selector, axis.com search, product/category pages, and Compare Products tables. EUR/USD/JPY, a field-of-view filter, and monthly self-serve price updates.">
+<title>Axis MSRP Price Overlay — Chrome 拡張機能</title>
+<meta name="description" content="Axis の MSRP 価格と CamStreamer チップセット情報を、製品セレクター・axis.com 検索・製品／カテゴリーページ・製品比較表に直接表示。EUR／USD／JPY 対応、画角フィルター、毎月の価格表を自分で差し替え可能。">
 <link rel="alternate" hreflang="en" href="index.html">
 <link rel="alternate" hreflang="ja" href="index.ja.html">
 <script>
@@ -21,7 +21,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
     --yellow: #FFC800;
@@ -56,7 +56,7 @@
     margin: 0;
     background: var(--bg);
     color: var(--ink);
-    font-family: 'Archivo', Helvetica, Arial, sans-serif;
+    font-family: 'Archivo', 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', Meiryo, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     line-height: 1.5;
     transition: background 0.15s ease, color 0.15s ease;
@@ -73,7 +73,7 @@
   }
   ::selection { background: var(--yellow); color: var(--void-fixed); }
   .wrap { max-width: 1160px; margin: 0 auto; padding: 0 28px; }
-  .mono { font-family: 'IBM Plex Mono', monospace; }
+  .mono { font-family: 'IBM Plex Mono', 'Noto Sans JP', monospace; }
 
   /* ---------- Buttons ---------- */
   .btn {
@@ -146,7 +146,7 @@
   }
   .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
   .brand-text .t1 { color: var(--ink); font-weight: 800; font-size: 15px; letter-spacing: 0.01em; }
-  .brand-text .t2 { color: var(--mute); font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; }
+  .brand-text .t2 { color: var(--mute); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; }
   .nav-links { display: flex; align-items: center; gap: 18px; }
   .nav-links a:not(.btn-nav) { color: var(--mute); text-decoration: none; font-size: 13.5px; font-weight: 600; letter-spacing: 0.02em; }
   .nav-links a:not(.btn-nav):hover { color: var(--yellow-deep); }
@@ -177,9 +177,14 @@
   }
   .tag-accent { color: var(--yellow-deep); border-color: rgba(183,142,0,0.45); }
   html[data-theme="dark"] .tag-accent { color: var(--yellow); border-color: rgba(255,200,0,0.45); }
+  /* Japanese runs far wider than English at the same size - full-width kana and
+     kanji are ~1em each, where Latin averages ~0.6em - so the headline is set a
+     few steps smaller and is kept to one line per row on purpose. line-height is
+     also looser than the English page's 0.98, which clips tall kanji. */
   .hero h1 {
-    margin: 0 0 14px; font-weight: 900; letter-spacing: -0.03em; line-height: 0.98;
-    font-size: clamp(28px, 3.6vw, 54px); max-width: 560px; text-transform: uppercase;
+    margin: 0 0 14px; font-weight: 900; letter-spacing: -0.03em; line-height: 1.14;
+    font-size: clamp(24px, 3vw, 40px); max-width: 100%; text-transform: uppercase;
+    white-space: nowrap;
   }
   .hero h1 span { color: var(--yellow-deep); }
   html[data-theme="dark"] .hero h1 span { color: var(--yellow); }
@@ -345,6 +350,12 @@
     .hero { padding-top: 28px; }
     .nav-links a:not(.btn-nav):not(.icon-github-link) { display: none; }
     section { padding: 64px 20px; }
+    /* Below the clamp floor the nowrap headline would start to overflow, so drop
+       it a couple more steps rather than letting it push the page sideways. */
+    .hero h1 { font-size: 22px; }
+  }
+  @media (max-width: 340px) {
+    .hero h1 { font-size: 19px; }
   }
 </style>
 </head>
@@ -356,28 +367,28 @@
       <span class="brand-mark">A$</span>
       <span class="brand-text">
         <span class="t1">Axis MSRP Price Overlay</span>
-        <span class="t2">Chrome extension · v3.4.4</span>
+        <span class="t2">Chrome 拡張機能 · v3.4.4</span>
       </span>
     </a>
     <nav class="nav-links">
-      <a href="#features">Features</a>
-      <a href="#sorting">Sorting</a>
-      <a href="#updates">Updates</a>
-      <a href="#install">Install</a>
-      <a href="#sources">Data</a>
-      <div class="lang-switch" role="group" aria-label="Language">
-        <span class="is-current" aria-current="page">EN</span>
+      <a href="#features">機能</a>
+      <a href="#sorting">並び替え</a>
+      <a href="#updates">価格更新</a>
+      <a href="#install">インストール</a>
+      <a href="#sources">データ出典</a>
+      <div class="lang-switch" role="group" aria-label="言語">
+        <a href="index.html" hreflang="en" lang="en">EN</a>
         <span class="lang-sep"></span>
-        <a href="index.ja.html" hreflang="ja" lang="ja">日本語</a>
+        <span class="is-current" aria-current="page">日本語</span>
       </div>
       <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener" class="icon-github-link">
         <svg class="icon-github" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
       </a>
-      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="ダークモードを切り替え" title="ダークモードを切り替え">
         <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"></path></svg>
         <svg class="icon-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"></path></svg>
       </button>
-      <a class="btn-nav" href="#install">Install unpacked</a>
+      <a class="btn-nav" href="#install">インストール</a>
     </nav>
   </div>
 </header>
@@ -386,33 +397,33 @@
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <div class="tag-row">
-        <span class="tag tag-accent">MSRP list prices · Jul/2026</span>
-        <span class="tag">Load unpacked in Chrome</span>
+        <span class="tag tag-accent">MSRP 定価 · 2026年7月版</span>
+        <span class="tag">パッケージ化されていない拡張機能として読み込み</span>
       </div>
-      <h1>Every Axis price,<br><span>right on axis.com.</span></h1>
+      <h1>すべての Axis 価格を、<br><span>axis.com でそのまま。</span></h1>
       <p class="sub">
-        A yellow MSRP badge and a CamStreamer chipset label on every recognized camera — on the
-        <a href="https://www.axis.com/support/tools/product-selector" target="_blank" rel="noopener">Axis Product Selector</a>,
-        <a href="https://www.axis.com/search" target="_blank" rel="noopener">axis.com search</a>, and every
-        axis.com product and category page, right down to the <strong>Compare Products</strong> table.
-        EUR, USD, or JPY, a field-of-view slider alongside the multi-select chipset filter, self-serve monthly price updates, and a toolbar popup that looks up any model or part number — light or dark, your call.
+        認識できたカメラすべてに、黄色い MSRP 価格バッジと CamStreamer チップセットのラベルを表示します。対応するのは
+        <a href="https://www.axis.com/ja-jp/support/tools/product-selector" target="_blank" rel="noopener">Axis 製品セレクター</a>、
+        <a href="https://www.axis.com/ja-jp/search" target="_blank" rel="noopener">axis.com の検索結果</a>、
+        そして axis.com のすべての製品ページ・カテゴリーページ — <strong>製品比較</strong>表の中まで。
+        EUR・USD・JPY の切り替え、複数選択できるチップセットフィルターと画角スライダー、毎月の価格表を自分で差し替えられる仕組み、任意のモデル名や品番をすぐ引けるツールバーポップアップ付き。ライトテーマ／ダークテーマもお好みで。
       </p>
       <div class="cta-row">
         <a class="btn btn-primary" href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">
           <svg viewBox="0 0 16 16"><path d="M8 1a.75.75 0 0 1 .75.75v6.69l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V1.75A.75.75 0 0 1 8 1zM2 12.5a.75.75 0 0 1 .75.75v.75c0 .28.22.5.5.5h9.5a.5.5 0 0 0 .5-.5v-.75a.75.75 0 0 1 1.5 0v.75A2 2 0 0 1 12.75 16h-9.5A2 2 0 0 1 1.25 14v-.75A.75.75 0 0 1 2 12.5z"/></svg>
-          Get the source — it's free
+          ソースコードを入手 — 無料です
         </a>
-        <a class="btn btn-ghost" href="#install">Install unpacked</a>
+        <a class="btn btn-ghost" href="#install">インストール手順</a>
       </div>
       <div class="stat-strip">
-        <div><div class="stat-num">290</div><div class="stat-label">Models</div></div>
-        <div><div class="stat-num">372</div><div class="stat-label">SKUs priced</div></div>
-        <div><div class="stat-num">€ / $ / ¥</div><div class="stat-label">EUR + USD + JPY</div></div>
-        <div><div class="stat-num">v3.4.4</div><div class="stat-label">Current build</div></div>
+        <div><div class="stat-num">290</div><div class="stat-label">モデル</div></div>
+        <div><div class="stat-num">372</div><div class="stat-label">価格収録 SKU</div></div>
+        <div><div class="stat-num">€ / $ / ¥</div><div class="stat-label">EUR＋USD＋JPY</div></div>
+        <div><div class="stat-num">v3.4.4</div><div class="stat-label">現行ビルド</div></div>
       </div>
     </div>
     <figure class="hero-shot">
-      <img src="img/AXIS P13 Box Camera Series _ Axis Communications.png" alt="AXIS P13 Box Camera Series page with a chipset and 'from €779.00 to €1,329.00' price range badge in the breadcrumb trail, price/chipset badges on every product card, and a Compare Products table with added Chipset and Price rows">
+      <img src="img/AXIS P13 Box Camera Series _ Axis Communications.png" alt="AXIS P13 ボックス型カメラシリーズのページ。パンくずリストにチップセットバッジと「from €779.00 to €1,329.00」の価格レンジバッジ、各製品カードに価格・チップセットバッジ、製品比較表にはチップセット行と価格行が追加されている">
     </figure>
   </div>
 </section>
@@ -423,120 +434,120 @@
     <span>AXIS P1388 — €1,029</span><span class="sep">/</span>
     <span>AXIS Q1728 — €1,299</span><span class="sep">/</span>
     <span>AXIS Q1686-DLE — €4,229</span><span class="sep">/</span>
-    <span>AXIS P13 Box Camera Series — from €779 to €1,329</span><span class="sep">/</span>
+    <span>AXIS P13 ボックス型カメラシリーズ — €779〜€1,329</span><span class="sep">/</span>
     <span>AXIS Q3546-LVE — €1,399</span><span class="sep">/</span>
-    <span>~¥18.1万 — AXIS Q1728, live JPY</span><span class="sep">/</span>
-    <span>ARTPEC 6-9 ✅ CamStreamer Support</span><span class="sep">/</span>
+    <span>~¥18.1万 — AXIS Q1728、リアルタイム円換算</span><span class="sep">/</span>
+    <span>ARTPEC 6-9 ✅ CamStreamer 対応</span><span class="sep">/</span>
     <span>AMB CV25</span><span class="sep">/</span>
-    <span>Min. field of view 90° — filter applied</span><span class="sep">/</span>
+    <span>最小画角 90° — フィルター適用中</span><span class="sep">/</span>
     <span>AXIS M1135 Mk II — €499</span><span class="sep">/</span>
     <span>AXIS P1388 — €1,029</span><span class="sep">/</span>
     <span>AXIS Q1728 — €1,299</span><span class="sep">/</span>
     <span>AXIS Q1686-DLE — €4,229</span><span class="sep">/</span>
-    <span>AXIS P13 Box Camera Series — from €779 to €1,329</span><span class="sep">/</span>
+    <span>AXIS P13 ボックス型カメラシリーズ — €779〜€1,329</span><span class="sep">/</span>
     <span>AXIS Q3546-LVE — €1,399</span><span class="sep">/</span>
-    <span>~¥18.1万 — AXIS Q1728, live JPY</span><span class="sep">/</span>
-    <span>ARTPEC 6-9 ✅ CamStreamer Support</span><span class="sep">/</span>
+    <span>~¥18.1万 — AXIS Q1728、リアルタイム円換算</span><span class="sep">/</span>
+    <span>ARTPEC 6-9 ✅ CamStreamer 対応</span><span class="sep">/</span>
     <span>AMB CV25</span><span class="sep">/</span>
-    <span>Min. field of view 90° — filter applied</span>
+    <span>最小画角 90° — フィルター適用中</span>
   </div>
 </div>
 
 <section class="features" id="features">
   <div class="wrap">
     <div class="eyebrow-row">
-      <span class="eyebrow">01 — WHAT IT DOES</span>
+      <span class="eyebrow">01 — できること</span>
       <span class="rule"></span>
     </div>
-    <h2 class="section-title">Every axis.com surface,<br>one shared price catalog</h2>
-    <p class="section-sub">Product Selector, search, product/category pages, and Compare Products tables — everything updates live, no page reload when you flip currency, refresh chipset data, or touch the chipset filter.</p>
+    <h2 class="section-title">axis.com のあらゆる画面を、<br>ひとつの価格カタログで</h2>
+    <p class="section-sub">製品セレクター、検索、製品／カテゴリーページ、製品比較表 — 通貨を切り替えても、チップセットデータを更新しても、チップセットフィルターを操作しても、ページの再読み込みなしにその場で反映されます。</p>
 
     <div class="feature-grid">
       <div class="feature-card">
         <figure class="feature-figure">
-          <img src="img/inline-badges-overview.png" alt="Axis Product Selector showing M32, M42, and M43 series cards, every one with an ARTPEC-8 chipset badge and a yellow price badge (screenshot carried over from an earlier build; badge style is unchanged in v3.4.4)">
+          <img src="img/inline-badges-overview.png" alt="Axis 製品セレクターの M32・M42・M43 シリーズのカード。すべてに ARTPEC-8 のチップセットバッジと黄色い価格バッジが付いている（旧ビルドのスクリーンショットですが、バッジの見た目は v3.4.4 でも変わっていません）">
         </figure>
         <div class="feature-body">
-          <div class="feature-kicker">FEATURE / 01</div>
-          <h3>Inline MSRP + chipset badges</h3>
-          <p>Every recognized product tile gets a yellow price badge — hover for the Axis part number — plus a chipset label where CamStreamer has data, with a checkmark for CamStreamer Support.</p>
+          <div class="feature-kicker">機能 / 01</div>
+          <h3>MSRP 価格とチップセットのインラインバッジ</h3>
+          <p>認識できた製品タイルには黄色い価格バッジが付き、カーソルを合わせると Axis の品番が表示されます。CamStreamer にデータがあるモデルにはチップセットのラベルも付き、CamStreamer 対応機にはチェックマークが入ります。</p>
         </div>
       </div>
 
       <div class="feature-card">
         <figure class="feature-figure feature-figure-inset">
-          <img src="img/popup-search.png" alt="Extension popup with currency toggle, search box, and matched models with part numbers and prices (screenshot carried over from an earlier EUR/USD-only build; a third ¥ JPY option has since been added to the same toggle in v3.4.4)" style="width: 62%; max-width: 340px;">
+          <img src="img/popup-search.png" alt="拡張機能のポップアップ。通貨切り替え、検索ボックス、品番と価格付きの検索結果が並んでいる（EUR／USD のみだった旧ビルドのスクリーンショットで、v3.4.4 では同じ切り替えに ¥ JPY が加わっています）" style="width: 62%; max-width: 340px;">
         </figure>
         <div class="feature-body">
-          <div class="feature-kicker">FEATURE / 02</div>
-          <h3>Three-currency toggle + lookup from the toolbar</h3>
-          <p>One click switches <strong>€ EUR / $ USD / ¥ JPY</strong> everywhere at once. EUR is the one "final" list-price figure; USD and JPY are always FX-derived approximations, so they're marked with a leading <code>~</code> and JPY is shown in shortened <strong>万</strong> (man) units — e.g. <code>~¥37.3万</code> instead of a six-digit yen figure. First-run currency defaults to your locale (JPY for Japanese locales, USD for the Americas, EUR everywhere else) until you pick one yourself. Search the full catalog by model name or part number, on any page, and toggle light/dark theme from the same header.</p>
+          <div class="feature-kicker">機能 / 02</div>
+          <h3>3 通貨の切り替えと、ツールバーからの検索</h3>
+          <p>ワンクリックで <strong>€ EUR ／ $ USD ／ ¥ JPY</strong> をすべての画面で一括切り替え。EUR が唯一の「確定した」定価で、USD と JPY は常に為替から算出した概算値です。そのため先頭に <code>~</code> を付け、円は 6 桁の数字ではなく <strong>万</strong>単位に短縮して表示します — たとえば <code>~¥37.3万</code>。初回起動時の通貨は閲覧中のロケールに合わせて自動設定され（日本語ロケールは JPY、南北アメリカは USD、それ以外は EUR）、ご自身で選び直せばその設定が優先されます。どのページからでもモデル名や品番でカタログ全体を検索でき、ライト／ダークテーマも同じヘッダーから切り替えられます。</p>
         </div>
       </div>
 
       <div class="feature-card">
         <figure class="feature-figure feature-figure-inset">
-          <img src="img/chipset-filter-detail.png" alt="Floating chipset filter panel with checkboxes for ARTPEC families and Ambarella, plus a CamStreamer Support preset" style="width: 70%; max-width: 380px;">
+          <img src="img/chipset-filter-detail.png" alt="フローティング表示のチップセットフィルターパネル。ARTPEC 各世代と Ambarella のチェックボックス、CamStreamer 対応プリセットが並んでいる" style="width: 70%; max-width: 380px;">
         </figure>
         <div class="feature-body">
-          <div class="feature-kicker">FEATURE / 03</div>
-          <h3>Multi-select chipset filter + field-of-view slider</h3>
-          <p>ARTPEC-9 / -8 / -6-7 / older / Ambarella, all at once — unlike the site's single-select dropdown. One click on <strong>CamStreamer Support</strong> selects every chipset family the apps actually run on. The same floating panel on the Product Selector also has a <strong>minimum field-of-view</strong> slider, so you can rule out cameras whose published FOV doesn't reach wide enough for the shot — models with no FOV data yet simply stay visible rather than disappearing.</p>
+          <div class="feature-kicker">機能 / 03</div>
+          <h3>複数選択できるチップセットフィルターと画角スライダー</h3>
+          <p>ARTPEC-9／-8／-6-7／それ以前／Ambarella を同時に選択できます — Axis サイト自体のドロップダウンは 1 つしか選べません。<strong>CamStreamer 対応</strong>をクリックすれば、アプリが実際に動作するチップセット世代がまとめて選ばれます。製品セレクターの同じパネルには<strong>最小画角</strong>スライダーもあり、必要な広さに届かないカメラを除外できます。画角データがまだ無いモデルは消えずにそのまま表示されるので、取りこぼしがありません。</p>
         </div>
       </div>
 
       <div class="feature-card">
         <figure class="feature-figure">
-          <img src="img/search-results-badge.png" alt="axis.com search results for P1388, each result title ending in a yellow EUR price badge">
+          <img src="img/search-results-badge.png" alt="axis.com で P1388 を検索した結果。各タイトルの末尾に黄色い EUR 価格バッジが付いている">
         </figure>
         <div class="feature-body">
-          <div class="feature-kicker">FEATURE / 04</div>
-          <h3>Badges on axis.com search too</h3>
-          <p>Search for a model (<code>M1137</code>) or a whole series (<code>Q35</code>) — titles get an exact price, a variant range, or a "from €X" badge.</p>
+          <div class="feature-kicker">機能 / 04</div>
+          <h3>axis.com の検索結果にもバッジ</h3>
+          <p>モデル名（<code>M1137</code>）でもシリーズ名（<code>Q35</code>）でも、検索結果のタイトルに正確な価格・バリアントの価格帯・「from €X」のいずれかのバッジが付きます。</p>
         </div>
       </div>
 
       <div class="feature-card">
         <figure class="feature-figure">
-          <img src="img/Screenshot 2026-07-17 at 14.42.14.png" alt="AXIS Q16 series category page with every product card showing a black grouped chipset badge (ARTPEC 6-9, checkmarked) and a yellow price badge pinned to the top of the card">
+          <img src="img/Screenshot 2026-07-17 at 14.42.14.png" alt="AXIS Q16 シリーズのカテゴリーページ。各製品カードの上部に、まとめて表示された黒いチップセットバッジ（ARTPEC 6-9、チェックマーク付き）と黄色い価格バッジが並んでいる">
         </figure>
         <div class="feature-body">
-          <div class="feature-kicker">FEATURE / 05</div>
-          <h3>Product and category pages, badged too</h3>
-          <p>Every model tile on a hub page (<strong>Box cameras</strong>) or series page gets a top-of-card price + chipset badge — a specific price for one model, or a "from €X" range for a whole series card — without ever covering the site's own captions.</p>
+          <div class="feature-kicker">機能 / 05</div>
+          <h3>製品ページ・カテゴリーページにもバッジ</h3>
+          <p>ハブページ（<strong>ボックス型カメラ</strong>）やシリーズページのモデルタイルには、カード上部に価格＋チップセットのバッジが付きます。単一モデルなら具体的な価格、シリーズ全体のカードなら「from €X」の価格帯です。Axis サイト自身のキャプションを覆い隠すことはありません。</p>
         </div>
       </div>
 
       <div class="feature-card">
         <figure class="feature-figure">
-          <img src="img/Screenshot 2026-07-17 at 14.42.05.png" alt="AXIS Q16 Box Camera Series breadcrumb trail showing grouped chipset badges (ARTPEC 6-9, ARTPEC 3-5) and a yellow 'from €1,209.00 to €4,229.00' price range badge">
+          <img src="img/Screenshot 2026-07-17 at 14.42.05.png" alt="AXIS Q16 ボックス型カメラシリーズのパンくずリスト。まとめられたチップセットバッジ（ARTPEC 6-9、ARTPEC 3-5）と、黄色い「from €1,209.00 to €4,229.00」の価格レンジバッジが表示されている">
         </figure>
         <div class="feature-body">
-          <div class="feature-kicker">FEATURE / 06</div>
-          <h3>Series price range in the breadcrumb, plus Compare Products rows</h3>
-          <p>A series page's breadcrumb trail gets the full price range and every chipset used across the series in one glance. Open the <strong>Compare Products</strong> table on the same page and it gains two new rows at the top — <strong>Chipset</strong> and <strong>Price</strong> — one column per model.</p>
+          <div class="feature-kicker">機能 / 06</div>
+          <h3>パンくずリストにシリーズの価格帯、比較表には新しい行</h3>
+          <p>シリーズページのパンくずリストに、そのシリーズ全体の価格帯と使われているチップセットがひと目で分かる形で表示されます。同じページの<strong>製品比較</strong>表を開くと、最上部に<strong>チップセット</strong>と<strong>価格</strong>の 2 行が追加され、モデルごとに 1 列ずつ並びます。</p>
         </div>
       </div>
 
       <div class="feature-card">
         <figure class="feature-figure">
-          <img src="img/jp-category-page-yen.png" alt="Japanese axis.com Box camera category page (ボックス型カメラ) with grouped chipset badges and a yellow 'from ~¥6万 to ~¥78.8万' range badge in the breadcrumb, and yen price badges on every product card">
+          <img src="img/jp-category-page-yen.png" alt="日本語版 axis.com のボックス型カメラのカテゴリーページ。パンくずリストにチップセットバッジと黄色い「from ~¥6万 to ~¥78.8万」のレンジバッジ、各製品カードに円建ての価格バッジが表示されている">
         </figure>
         <div class="feature-body">
-          <div class="feature-kicker">FEATURE / 07</div>
-          <h3>Works on every axis.com locale — including Japanese</h3>
-          <p>Badges are placed by CSS class and URL slug, never by matching English text, so a fully translated page like <strong>ボックス型カメラ</strong> gets the same breadcrumb range and card badges as its English twin. On first run the currency follows the locale you're browsing — <strong>JPY on Japanese pages</strong>, USD in the Americas, EUR everywhere else — and picking a currency yourself overrides it for good.</p>
+          <div class="feature-kicker">機能 / 07</div>
+          <h3>日本語を含む axis.com の全ロケールに対応</h3>
+          <p>バッジの配置には CSS クラスと URL のスラッグを使い、英語のテキストとの一致には一切頼っていません。そのため<strong>ボックス型カメラ</strong>のように完全に翻訳されたページでも、英語版とまったく同じパンくずの価格帯とカードバッジが表示されます。初回起動時の通貨は閲覧中のロケールに追従し（<strong>日本語ページなら JPY</strong>、南北アメリカは USD、それ以外は EUR）、ご自身で通貨を選べばその設定が以降ずっと優先されます。</p>
         </div>
       </div>
 
       <div class="feature-card">
         <figure class="feature-figure">
-          <img src="img/jp-series-yen-badges.png" alt="AXIS M11 Series cards on a Japanese axis.com page, each with an ARTPEC-6/7 checkmarked chipset badge and a yen price badge reading ~¥9.3万 or ~¥11.2万">
+          <img src="img/jp-series-yen-badges.png" alt="日本語版 axis.com の AXIS M11 シリーズのカード。それぞれにチェックマーク付きの ARTPEC-6/7 チップセットバッジと、~¥9.3万 や ~¥11.2万 と表示された円建ての価格バッジが付いている">
         </figure>
         <div class="feature-body">
-          <div class="feature-kicker">FEATURE / 08</div>
-          <h3>Yen in 万 units, not six digits</h3>
-          <p>Yen figures are rounded up to the nearest ¥1,000 and written in shortened <strong>万</strong> (man) units — <code>~¥9.3万</code> rather than <code>¥93,000</code> — so a price badge stays the same size in every currency. The leading <code>~</code> is a reminder that yen is converted live from the EUR list price at the latest ECB reference rate, not quoted from a published Japanese price list. Switching to ¥ JPY also swaps the popup's disclaimer to Japanese.</p>
+          <div class="feature-kicker">機能 / 08</div>
+          <h3>円は 6 桁ではなく万単位で</h3>
+          <p>円建ての金額は 1,000 円単位で切り上げ、<strong>万</strong>単位に短縮して表示します — <code>¥93,000</code> ではなく <code>~¥9.3万</code>。どの通貨でも価格バッジの大きさが変わらないためです。先頭の <code>~</code> は、この金額が日本向けの公表価格表からの引用ではなく、EUR の定価を最新の ECB 参照レートでその場で換算した概算値であることを示しています。¥ JPY に切り替えると、ポップアップの注意書きも日本語に切り替わります。</p>
         </div>
       </div>
     </div>
@@ -546,24 +557,24 @@
 <section class="sorting" id="sorting">
   <div class="wrap">
     <div class="eyebrow-row">
-      <span class="eyebrow">09 — SORTING</span>
+      <span class="eyebrow">09 — 並び替え</span>
       <span class="rule"></span>
     </div>
-    <h2 class="section-title">Sort series by cheapest price</h2>
-    <p class="section-sub">An optional toggle re-ranks every series so the one with the cheapest currently-visible product floats to the top — recalculated live as you filter by chipset. <span class="try-live-tag">TRY IT — CHECK THE BOX</span></p>
+    <h2 class="section-title">シリーズを安い順に並べ替える</h2>
+    <p class="section-sub">オプションのチェックボックスをオンにすると、表示中の製品のうち最も安いものを持つシリーズが上に来るよう、すべてのシリーズが並べ替えられます。チップセットで絞り込むたびに、その場で再計算されます。<span class="try-live-tag">試してみてください — チェックを入れる</span></p>
 
     <div class="sort-toggle-row">
       <input type="checkbox" id="sortDemo" class="sort-checkbox">
-      <label for="sortDemo" class="sort-toggle-label">Sort series by cheapest price</label>
+      <label for="sortDemo" class="sort-toggle-label">シリーズを安い順に並べ替える</label>
     </div>
 
     <figure class="compare-live">
-      <img class="shot-off" src="img/sort-before.png" alt="Sort series by cheapest price unchecked; AXIS M11 series is followed by AXIS M30 series">
-      <img class="shot-on" src="img/sort-after.png" alt="Sort series by cheapest price checked; AXIS M11 series is now followed by Modular cameras, from $529 (screenshot carried over from the v1.5.9 USD-default UI)">
+      <img class="shot-off" src="img/sort-before.png" alt="「シリーズを安い順に並べ替える」がオフの状態。AXIS M11 シリーズの次に AXIS M30 シリーズが並んでいる">
+      <img class="shot-on" src="img/sort-after.png" alt="「シリーズを安い順に並べ替える」がオンの状態。AXIS M11 シリーズの次に、$529 からのモジュラーカメラが来ている（USD が既定だった v1.5.9 の UI のスクリーンショット）">
     </figure>
     <p class="live-caption">
-      <span class="caption-off"><span class="state-tag off">OFF</span> Series stay in the Product Selector's own default order (M11 → M30 …).</span>
-      <span class="caption-on"><span class="state-tag on">ON</span> Modular cameras jumps ahead of M30 — now the cheapest visible series.</span>
+      <span class="caption-off"><span class="state-tag off">オフ</span> 製品セレクター本来の並び順のまま（M11 → M30 …）。</span>
+      <span class="caption-on"><span class="state-tag on">オン</span> モジュラーカメラが M30 より前に — 表示中で最も安いシリーズになりました。</span>
     </p>
   </div>
 </section>
@@ -571,20 +582,20 @@
 <section class="updates" id="updates">
   <div class="wrap">
     <div class="eyebrow-row">
-      <span class="eyebrow">10 — MONTHLY UPDATES</span>
+      <span class="eyebrow">10 — 毎月の価格更新</span>
       <span class="rule"></span>
     </div>
-    <h2 class="section-title">Drop in any AXIS Price List — no reinstall</h2>
-    <p class="section-sub">Axis publishes a new AXIS Price List roughly every month. Since v2.0.0, the extension parses it itself: open the settings page from the toolbar popup's ⚙ button and drag the new file in.</p>
+    <h2 class="section-title">AXIS 価格表をドロップするだけ — 再インストール不要</h2>
+    <p class="section-sub">Axis はおよそ月に一度、新しい AXIS 価格表（AXIS Price List）を公開します。v2.0.0 以降、この拡張機能は価格表を自分で解析できます。ツールバーポップアップの ⚙ ボタンから設定ページを開き、新しいファイルをドラッグするだけです。</p>
     <div class="updates-grid">
       <figure class="updates-shot">
-        <img src="img/price-list-upload.png" alt="Extension settings page with a drop zone for the monthly AXIS Price List .xls file, a source label field, and Apply update / Revert to bundled prices buttons">
+        <img src="img/price-list-upload.png" alt="拡張機能の設定ページ。毎月の AXIS 価格表 .xls ファイル用のドロップゾーン、出典ラベルの入力欄、「更新を適用」と「同梱の価格に戻す」のボタンがある">
       </figure>
       <ul class="updates-list">
-        <li><strong>Known format, recognized automatically.</strong> Drop the usual monthly <code>.xls</code>/<code>.xlsx</code> file and it reads the "All products" sheet, detects the name/part-number/price columns, and figures out EUR vs. USD vs. JPY on its own.</li>
-        <li><strong>Anything else, mapped by hand.</strong> A different layout or a one-off export brings up a column-mapping panel with a live preview, so you can point out the sheet, header row, price/part-number columns, and source currency (EUR/USD/JPY) yourself — EUR stays the default, since the bundled catalog itself is EUR-sourced.</li>
-        <li><strong>Coverage report before you commit.</strong> See how many SKUs matched by part number vs. name fallback, a breakdown by product section, and anything unmatched — then <strong>Apply update</strong>, or <strong>Revert to bundled prices</strong> at any time.</li>
-        <li><strong>Runs entirely in your browser.</strong> Parsing happens locally via a bundled copy of SheetJS — the file itself never leaves your machine. The only network call is an FX reference-rate lookup (ECB data via api.frankfurter.dev, no API key) — EUR/USD, plus EUR/JPY if the file is JPY-sourced.</li>
+        <li><strong>既知のフォーマットは自動認識。</strong>毎月のいつもの <code>.xls</code>／<code>.xlsx</code> ファイルをドロップすれば、「All products」シートを読み取り、製品名・品番・価格の列を検出し、EUR か USD か JPY かも自動で判別します。</li>
+        <li><strong>それ以外は手動で対応付け。</strong>レイアウトが違うファイルや単発のエクスポートでは、ライブプレビュー付きの列マッピング画面が開きます。シート、ヘッダー行、価格／品番の列、そして元の通貨（EUR／USD／JPY）を自分で指定できます。同梱カタログ自体が EUR 基準なので、既定は EUR です。</li>
+        <li><strong>適用前にカバレッジレポート。</strong>品番で一致した SKU と製品名で一致した SKU の件数、製品セクションごとの内訳、一致しなかった項目を確認したうえで<strong>更新を適用</strong>できます。<strong>同梱の価格に戻す</strong>はいつでも可能です。</li>
+        <li><strong>処理はすべてブラウザー内。</strong>解析は同梱の SheetJS でローカルに行われ、ファイル自体が端末から出ることはありません。外部通信は為替の参照レート取得だけです（api.frankfurter.dev 経由の ECB データ、API キー不要）— EUR／USD と、JPY 基準のファイルの場合は EUR／JPY。</li>
       </ul>
     </div>
   </div>
@@ -593,21 +604,21 @@
 <section class="install" id="install">
   <div class="wrap">
     <div class="eyebrow-row">
-      <span class="eyebrow">11 — INSTALL</span>
+      <span class="eyebrow">11 — インストール</span>
       <span class="rule"></span>
     </div>
-    <h2 class="section-title">Install as an unpacked extension</h2>
-    <p class="section-sub">There's a <a href="https://chromewebstore.google.com/detail/axis-msrp-price-overlay/gnegcekipfaapeboifcejnjmfemfigpl" target="_blank" rel="noopener" style="font-weight:600">Chrome Web Store listing</a>, but it trails behind — <strong>v3.4.4</strong> is the latest build, and the only one with JPY, Japanese-locale support and the field-of-view filter. To get it, grab the source from the <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener" style="font-weight:600">GitHub repo</a> and point Chrome's developer mode at the folder.</p>
+    <h2 class="section-title">パッケージ化されていない拡張機能として読み込む</h2>
+    <p class="section-sub"><a href="https://chromewebstore.google.com/detail/axis-msrp-price-overlay/gnegcekipfaapeboifcejnjmfemfigpl" target="_blank" rel="noopener" style="font-weight:600">Chrome ウェブストアの掲載</a>もありますが、そちらは更新が遅れています。最新は <strong>v3.4.4</strong> で、JPY・日本語ロケール対応・画角フィルターが入っているのはこのビルドだけです。<a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener" style="font-weight:600">GitHub リポジトリ</a>からソースを取得し、Chrome のデベロッパーモードでそのフォルダーを指定してください。</p>
     <div class="install-grid">
       <ol class="steps">
-        <li><span class="step-num">1</span><span class="step-text">Download or clone the <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">extension source</a>, then open <code>chrome://extensions</code> in Chrome.</span></li>
-        <li><span class="step-num">2</span><span class="step-text">Turn on <strong>Developer mode</strong> (top-right toggle), then click <strong>Load unpacked</strong> and select the extension folder.</span></li>
-        <li><span class="step-num">3</span><span class="step-text">Open the <a href="https://www.axis.com/support/tools/product-selector" target="_blank" rel="noopener">Product Selector</a> — badges, the chipset filter, and the field-of-view slider appear automatically. Already-open axis.com tabs pick it up within a moment too, no reload needed.</span></li>
-        <li><span class="step-num">4</span><span class="step-text">Click the extension icon any time to flip currency (EUR/USD/JPY), look up a model, or open settings to refresh the monthly price list.</span></li>
-        <li><span class="step-num">5</span><span class="step-text">Future releases mean re-downloading the source and clicking <strong>Reload</strong> on the extension card — there's no auto-update outside the Web Store.</span></li>
+        <li><span class="step-num">1</span><span class="step-text"><a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">拡張機能のソース</a>をダウンロードまたはクローンし、Chrome で <code>chrome://extensions</code> を開きます。</span></li>
+        <li><span class="step-num">2</span><span class="step-text"><strong>デベロッパーモード</strong>（右上のスイッチ）をオンにし、<strong>パッケージ化されていない拡張機能を読み込む</strong>をクリックして拡張機能のフォルダーを選びます。</span></li>
+        <li><span class="step-num">3</span><span class="step-text"><a href="https://www.axis.com/ja-jp/support/tools/product-selector" target="_blank" rel="noopener">製品セレクター</a>を開くと、バッジ・チップセットフィルター・画角スライダーが自動で表示されます。すでに開いてある axis.com のタブにも数秒で反映され、再読み込みは不要です。</span></li>
+        <li><span class="step-num">4</span><span class="step-text">拡張機能のアイコンはいつでもクリックできます。通貨の切り替え（EUR／USD／JPY）、モデルの検索、設定ページを開いて毎月の価格表を更新、といった操作が可能です。</span></li>
+        <li><span class="step-num">5</span><span class="step-text">今後のリリースでは、ソースを再ダウンロードして拡張機能カードの<strong>更新</strong>をクリックしてください。ウェブストア経由でない場合、自動更新はありません。</span></li>
       </ol>
       <figure class="install-shot">
-        <img src="img/install-load-unpacked.png" alt="Chrome's chrome://extensions page with Developer mode enabled and the Load unpacked button highlighted">
+        <img src="img/install-load-unpacked.png" alt="Chrome の chrome://extensions ページ。デベロッパーモードがオンで、「パッケージ化されていない拡張機能を読み込む」ボタンが強調されている">
       </figure>
     </div>
   </div>
@@ -616,22 +627,22 @@
 <section class="sources" id="sources">
   <div class="wrap">
     <div class="eyebrow-row">
-      <span class="eyebrow">12 — DATA SOURCES</span>
+      <span class="eyebrow">12 — データ出典</span>
       <span class="rule"></span>
     </div>
-    <h2 class="section-title" style="margin-bottom:44px;">Where the numbers come from</h2>
+    <h2 class="section-title" style="margin-bottom:44px;">数字の出どころ</h2>
     <div class="sources-grid">
       <div class="source-card">
-        <div class="source-tag light">PRICES / EUR</div>
-        <p>The "All products" sheet of the AXIS Price List — 290 models and 377 SKUs, of which 325 carry a EUR list price (every product section has EUR except 2N, plus a few individual non-camera SKUs). Bundled with July 2026 pricing by default and refreshable any month by dropping in a new file. This is the one "final" list-price figure everything else is derived from.</p>
+        <div class="source-tag light">価格 / EUR</div>
+        <p>AXIS 価格表の「All products」シート — 290 モデル・377 SKU で、そのうち 325 SKU に EUR の定価が入っています（2N 以外のすべての製品セクションに EUR があり、ほかに一部の非カメラ SKU が欠けています）。既定では 2026 年 7 月の価格を同梱しており、新しいファイルをドロップすればいつでも更新できます。これが、ほかのすべての数字の元になる唯一の「確定した」定価です。</p>
       </div>
       <div class="source-card">
-        <div class="source-tag light">PRICES / USD + JPY</div>
-        <p>Both are approximations, marked with a leading <code>~</code>. USD is baked in at bundle-build time (1 EUR ≈ 1.1387 USD, per xe.com) — FX-derived from EUR, except for the handful of SKUs with no EUR entry, which keep their original Axis US list figure. JPY is converted live from EUR using whatever rate api.frankfurter.dev last returned, shown in shortened 万 units and refreshed weekly alongside chipset data.</p>
+        <div class="source-tag light">価格 / USD＋JPY</div>
+        <p>どちらも概算値で、先頭に <code>~</code> が付きます。USD は同梱データ作成時のレートで固定されており（1 EUR ≈ 1.1387 USD、xe.com による）、基本的には EUR からの為替換算値です。ただし EUR の登録がない一部の SKU については、Axis の米国価格表の金額をそのまま使っています。JPY は api.frankfurter.dev が最後に返した EUR／JPY レートで EUR からその場で換算し、万単位に短縮して表示します。レートはチップセットデータと同じタイミングで毎週更新されます。</p>
       </div>
       <div class="source-card">
-        <div class="source-tag dark">CHIPSETS</div>
-        <p><code>chipset-data.js</code> bundles a snapshot parsed from <a href="https://camstreamer.com/download-app-all-supported-cameras" target="_blank" rel="noopener" style="font-weight:600">camstreamer.com's supported-hardware list</a> — refreshed weekly by the background service worker, or on demand from the popup.</p>
+        <div class="source-tag dark">チップセット</div>
+        <p><code>chipset-data.js</code> には <a href="https://camstreamer.com/download-app-all-supported-cameras" target="_blank" rel="noopener" style="font-weight:600">camstreamer.com の対応ハードウェア一覧</a>から取得したスナップショットが入っています。バックグラウンドのサービスワーカーが毎週更新し、ポップアップから手動更新もできます。</p>
       </div>
     </div>
   </div>
@@ -644,11 +655,11 @@
         <span class="footer-mark">A$</span>
         <span class="name">Axis MSRP Price Overlay v3.4.4</span>
       </div>
-      <p>Personal project — not affiliated with, endorsed by, or sponsored by Axis Communications AB. AXIS® is a trademark of Axis Communications AB. Prices are MSRP list prices, not street prices. USD and JPY figures are FX-derived estimates, not independently published Axis price lists.</p>
+      <p>個人プロジェクトです。Axis Communications AB とは提携関係にはなく、同社による承認・後援も受けていません。AXIS® は Axis Communications AB の商標です。表示される価格は MSRP（希望小売価格）であり、実売価格ではありません。USD および JPY の金額は為替から算出した概算値で、Axis が独自に公表している価格表ではありません。</p>
     </div>
     <div class="footer-links">
       <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension" target="_blank" rel="noopener">GitHub</a>
-      <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension/releases" target="_blank" rel="noopener">Releases</a>
+      <a href="https://github.com/kotyzap/Axis-MSRP-Price-Overlay-Chrome-Extension/releases" target="_blank" rel="noopener">リリース</a>
     </div>
   </div>
 </footer>
