@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Axis MSRP Price Overlay — Chrome Extension</title>
-<meta name="description" content="Axis MSRP prices and CamStreamer chipset info on the Product Selector, axis.com search, product/category pages, and Compare Products tables. EUR/USD/JPY, a field-of-view filter, and monthly self-serve price updates.">
+<meta name="description" content="Axis MSRP prices and CamStreamer chipset info on the Product Selector, axis.com search, product/category pages, and Compare Products tables. EUR/USD/JPY or no prices at all, a map tool that picks cameras by the coverage you draw, full Japanese UI, and monthly self-serve price updates.">
 <link rel="alternate" hreflang="en" href="index.html">
 <link rel="alternate" hreflang="ja" href="index.ja.html">
 <script>
@@ -183,7 +183,11 @@
   }
   .hero h1 span { color: var(--yellow-deep); }
   html[data-theme="dark"] .hero h1 span { color: var(--yellow); }
-  .hero .sub { margin: 0 0 18px; max-width: 520px; font-size: 15.5px; line-height: 1.55; color: var(--mute); }
+  /* Larger than the original 15.5px so the hero copy fills the left column
+     next to a tall screenshot. The width cap is lifted to the column width
+     (~547px), which at this size is around 60 characters per line - still
+     inside the comfortable 45-75 range for reading. */
+  .hero .sub { margin: 0 0 20px; max-width: 100%; font-size: 17.5px; line-height: 1.62; color: var(--mute); }
   .hero .sub a { color: var(--ink); text-decoration-color: var(--yellow); }
   .cta-row { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 22px; }
   .stat-strip {
@@ -240,7 +244,10 @@
   .feature-body strong { color: var(--ink); }
 
   /* ---------- Sorting (live, checkbox-driven demo) ---------- */
-  .sorting { background: var(--bg-alt); }
+  .fovmap { background: var(--bg-alt); }
+  .fovmap-shot { margin: 32px 0 36px; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--yellow); background: var(--bg); }
+  .fovmap .updates-list { max-width: 900px; }
+  .sorting { background: var(--bg); }
 
   /* A real checkbox (not a decorative one) drives everything below it via
      the CSS :checked + general-sibling combinator - no JS needed, and it
@@ -288,7 +295,7 @@
   .state-tag.on { background: var(--yellow); color: var(--void-fixed); font-weight: 600; }
 
   /* ---------- Updates ---------- */
-  .updates { background: var(--bg); }
+  .updates { background: var(--bg-alt); }
   .updates-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: 48px; align-items: center; }
   .updates-shot { margin: 0; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--yellow); }
   .updates-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
@@ -296,7 +303,7 @@
   .updates-list strong { color: var(--ink); }
 
   /* ---------- Install ---------- */
-  .install { background: var(--bg-alt); }
+  .install { background: var(--bg); }
   .install-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: start; }
   .steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
   .steps li { display: flex; gap: 18px; padding: 16px 0; border-bottom: 1px solid var(--border); }
@@ -330,8 +337,8 @@
   .install-cta-note { font-size: 13px; line-height: 1.55; color: var(--mute); margin: 16px 0 0; }
 
   /* ---------- Sources ---------- */
-  .sources { background: var(--bg); border-top: 1px solid var(--border); }
-  .sources-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .sources { background: var(--bg-alt); border-top: 1px solid var(--border); }
+  .sources-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
   .source-card { background: var(--surface); border: 2px solid var(--ink); padding: 26px 26px 30px; }
   .source-tag { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.16em; display: inline-block; padding: 5px 11px; font-weight: 600; margin-bottom: 16px; }
   .source-tag.light { background: var(--yellow); color: var(--void-fixed); }
@@ -374,11 +381,12 @@
       <span class="brand-mark">A$</span>
       <span class="brand-text">
         <span class="t1">Axis MSRP Price Overlay</span>
-        <span class="t2">Chrome extension · v3.4.4</span>
+        <span class="t2">Chrome extension · v3.10.1</span>
       </span>
     </a>
     <nav class="nav-links">
       <a href="#features">Features</a>
+      <a href="#fovmap">FOV map</a>
       <a href="#sorting">Sorting</a>
       <a href="#updates">Updates</a>
       <a href="#install">Install</a>
@@ -413,7 +421,7 @@
         <a href="https://www.axis.com/support/tools/product-selector" target="_blank" rel="noopener">Axis Product Selector</a>,
         <a href="https://www.axis.com/search" target="_blank" rel="noopener">axis.com search</a>, and every
         axis.com product and category page, right down to the <strong>Compare Products</strong> table.
-        EUR, USD, or JPY, a field-of-view slider alongside the multi-select chipset filter, self-serve monthly price updates, and a toolbar popup that looks up any model or part number — light or dark, your call.
+        EUR, USD, JPY — or no prices at all. A field-of-view slider alongside the multi-select chipset filter, a map tool that picks cameras from the coverage you draw, a fully Japanese UI when you want it, self-serve monthly price updates, and a toolbar popup that looks up any model or part number — light or dark, your call.
       </p>
       <div class="cta-row">
         <a class="btn btn-primary" href="https://chromewebstore.google.com/detail/axis-msrp-price-overlay/gnegcekipfaapeboifcejnjmfemfigpl" target="_blank" rel="noopener">
@@ -426,7 +434,7 @@
         <div><div class="stat-num">290</div><div class="stat-label">Models</div></div>
         <div><div class="stat-num">372</div><div class="stat-label">SKUs priced</div></div>
         <div><div class="stat-num">€ / $ / ¥</div><div class="stat-label">EUR + USD + JPY</div></div>
-        <div><div class="stat-num">v3.4.4</div><div class="stat-label">Current build</div></div>
+        <div><div class="stat-num">v3.10.1</div><div class="stat-label">Current build</div></div>
       </div>
     </div>
     <figure class="hero-shot">
@@ -447,6 +455,8 @@
     <span>ARTPEC 6-9 ✅ CamStreamer Support</span><span class="sep">/</span>
     <span>AMB CV25</span><span class="sep">/</span>
     <span>Min. field of view 90° — filter applied</span><span class="sep">/</span>
+    <span>AXIS P3747-PLVE — 360° coverage</span><span class="sep">/</span>
+    <span>PTZ · by panning — 23 of 23 covered</span><span class="sep">/</span>
     <span>AXIS M1135 Mk II — €499</span><span class="sep">/</span>
     <span>AXIS P1388 — €1,029</span><span class="sep">/</span>
     <span>AXIS Q1728 — €1,299</span><span class="sep">/</span>
@@ -456,7 +466,9 @@
     <span>~¥18.1万 — AXIS Q1728, live JPY</span><span class="sep">/</span>
     <span>ARTPEC 6-9 ✅ CamStreamer Support</span><span class="sep">/</span>
     <span>AMB CV25</span><span class="sep">/</span>
-    <span>Min. field of view 90° — filter applied</span>
+    <span>Min. field of view 90° — filter applied</span><span class="sep">/</span>
+    <span>AXIS P3747-PLVE — 360° coverage</span><span class="sep">/</span>
+    <span>PTZ · by panning — 23 of 23 covered</span>
   </div>
 </div>
 
@@ -472,7 +484,7 @@
     <div class="feature-grid">
       <div class="feature-card">
         <figure class="feature-figure">
-          <img src="img/inline-badges-overview.png" alt="Axis Product Selector showing M32, M42, and M43 series cards, every one with an ARTPEC-8 chipset badge and a yellow price badge (screenshot carried over from an earlier build; badge style is unchanged in v3.4.4)">
+          <img src="img/inline-badges-overview.png" alt="Axis Product Selector showing M32, M42, and M43 series cards, every one with an ARTPEC-8 chipset badge and a yellow price badge (screenshot carried over from an earlier build; badge style is unchanged in v3.10.1)">
         </figure>
         <div class="feature-body">
           <div class="feature-kicker">FEATURE / 01</div>
@@ -483,7 +495,7 @@
 
       <div class="feature-card">
         <figure class="feature-figure feature-figure-inset">
-          <img src="img/popup-search.png" alt="Extension popup with currency toggle, search box, and matched models with part numbers and prices (screenshot carried over from an earlier EUR/USD-only build; a third ¥ JPY option has since been added to the same toggle in v3.4.4)" style="width: 62%; max-width: 340px;">
+          <img src="img/popup-search.png" alt="Extension popup with currency toggle, search box, and matched models with part numbers and prices (screenshot carried over from an earlier EUR/USD-only build; a third ¥ JPY option and a fourth hide-prices option have since been added to the same toggle, current as of v3.10.1)" style="width: 62%; max-width: 340px;">
         </figure>
         <div class="feature-body">
           <div class="feature-kicker">FEATURE / 02</div>
@@ -557,14 +569,58 @@
           <p>Yen figures are rounded up to the nearest ¥1,000 and written in shortened <strong>万</strong> (man) units — <code>~¥9.3万</code> rather than <code>¥93,000</code> — so a price badge stays the same size in every currency. The leading <code>~</code> is a reminder that yen is converted live from the EUR list price at the latest ECB reference rate, not quoted from a published Japanese price list. Switching to ¥ JPY also swaps the popup's disclaimer to Japanese.</p>
         </div>
       </div>
+
+      <div class="feature-card">
+        <figure class="feature-figure feature-figure-inset">
+          <img src="img/currency-toggle-hide-prices.png" alt="The popup's currency row with four options — $ USD selected, € EUR, ¥ JPY, and a fourth crossed-out-circle button that hides prices entirely" style="width: 88%; max-width: 344px;">
+        </figure>
+        <div class="feature-body">
+          <div class="feature-kicker">FEATURE / 09</div>
+          <h3>Or hide every price, and keep the rest</h3>
+          <p>A fourth <strong>🚫</strong> option in the same currency row switches prices off across the whole extension — Product Selector badges, search results, product and category pages, the series breadcrumb, both comparison tables, the popup list and the map tool. Chipset badges, the chipset filter and the field-of-view tools all keep working untouched, so it stays a full camera-picking tool for anyone who simply doesn't deal with pricing. Cheapest-first sorting still works too, since it reveals no numbers.</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <figure class="feature-figure">
+          <img src="img/jp-fov-map-overview.png" alt="The FOV Map Camera Selector rendered entirely in Japanese — panel headings 微調整 and 絞り込み・並べ替え, a 該当するAxisモデル results stripe, and camera cards labelled 画角, パノラマ, マルチセンサー and PTZ · パン動作で対応 with yen prices">
+        </figure>
+        <div class="feature-body">
+          <div class="feature-kicker">FEATURE / 10</div>
+          <h3>Fully Japanese, when it should be</h3>
+          <p>Every surface — popup, price-update page, the map tool and every badge and tooltip injected into axis.com — switches to Japanese whenever any one of three things is true: <strong>¥ JPY</strong> is the selected currency, the browser's own UI language is Japanese, or you're on the <code>/ja-jp/</code> locale of axis.com. There's no separate language switch to remember, and it flips live on already-open tabs. Product names, model numbers and terms like ARTPEC and CamStreamer stay in roman script, the way Japanese technical UI normally treats them.</p>
+        </div>
+      </div>
     </div>
+  </div>
+</section>
+
+<section class="fovmap" id="fovmap">
+  <div class="wrap">
+    <div class="eyebrow-row">
+      <span class="eyebrow">11 — FOV MAP</span>
+      <span class="rule"></span>
+    </div>
+    <h2 class="section-title">Draw the area you need covered.<br>Get the cameras that cover it.</h2>
+    <p class="section-sub">Open the map tool from the popup, drop a pin where the camera goes, then drag out the two edges of the ground you actually need to watch. It works out the horizontal angle that requires and ranks every Axis model whose published field of view can deliver it.</p>
+
+    <figure class="fovmap-shot">
+      <img src="img/fov-map-overview.png" alt="The FOV Map Camera Selector: a Prague street map with a yellow coverage wedge drawn from a camera pin, collapsible panels for fine-tuning the 150.4 degree angle and 809 m depth, and a horizontally scrolling stripe of matching camera cards along the bottom">
+    </figure>
+
+    <ul class="updates-list">
+      <li><strong>Wider than a wedge, when you need it.</strong> Keep dragging an edge handle outward and the shape opens straight through 180° and on to a full circle, instead of flipping to the far side. That's what lets a genuine 360° model be chosen for the reason it exists.</li>
+      <li><strong>PTZ and 360 models are treated as what they are.</strong> A pan/tilt/zoom camera can reach anywhere in a full circle, so it matches any angle — but when it only gets there by turning, the card says <strong>PTZ · by panning</strong>, because it watches one direction at a time rather than the whole area at once. Cameras that cover the area outright always rank above it.</li>
+      <li><strong>Cards you can act on.</strong> Each result shows the product photo, the model's FOV range, its chipset and price as the same badges you see on axis.com, plus series and part number. The model name links to its page on axis.com, and clicking the part number copies the SKU straight to your clipboard.</li>
+      <li><strong>Sorted how you're thinking.</strong> Rank by tightest fit — the narrowest lens that still does the job, so you're not over-specifying — or by price, low to high. Narrow to CamStreamer-capable models with one checkbox.</li>
+    </ul>
   </div>
 </section>
 
 <section class="sorting" id="sorting">
   <div class="wrap">
     <div class="eyebrow-row">
-      <span class="eyebrow">09 — SORTING</span>
+      <span class="eyebrow">12 — SORTING</span>
       <span class="rule"></span>
     </div>
     <h2 class="section-title">Sort series by cheapest price</h2>
@@ -589,7 +645,7 @@
 <section class="updates" id="updates">
   <div class="wrap">
     <div class="eyebrow-row">
-      <span class="eyebrow">10 — MONTHLY UPDATES</span>
+      <span class="eyebrow">13 — MONTHLY UPDATES</span>
       <span class="rule"></span>
     </div>
     <h2 class="section-title">Drop in any AXIS Price List — no reinstall</h2>
@@ -611,7 +667,7 @@
 <section class="install" id="install">
   <div class="wrap">
     <div class="eyebrow-row">
-      <span class="eyebrow">11 — INSTALL</span>
+      <span class="eyebrow">14 — INSTALL</span>
       <span class="rule"></span>
     </div>
     <h2 class="section-title">Install from the Chrome Web Store</h2>
@@ -638,7 +694,7 @@
 <section class="sources" id="sources">
   <div class="wrap">
     <div class="eyebrow-row">
-      <span class="eyebrow">12 — DATA SOURCES</span>
+      <span class="eyebrow">15 — DATA SOURCES</span>
       <span class="rule"></span>
     </div>
     <h2 class="section-title" style="margin-bottom:44px;">Where the numbers come from</h2>
@@ -650,6 +706,10 @@
       <div class="source-card">
         <div class="source-tag light">PRICES / USD + JPY</div>
         <p>Both are approximations, marked with a leading <code>~</code>. USD is baked in at bundle-build time (1 EUR ≈ 1.1387 USD, per xe.com) — FX-derived from EUR, except for the handful of SKUs with no EUR entry, which keep their original Axis US list figure. JPY is converted live from EUR using whatever rate api.frankfurter.dev last returned, shown in shortened 万 units and refreshed weekly alongside chipset data.</p>
+      </div>
+      <div class="source-card">
+        <div class="source-tag light">FIELD OF VIEW</div>
+        <p><code>fov-data.js</code> is hand-curated: every figure is read off that model's own <strong>Technical specifications → Lens → Horizontal field of view</strong> row on axis.com, because the Product Selector loads FOV from an internal authenticated API there's no public feed for. 93 entries currently resolve to 99 of the 377 SKUs, and the whole pan/tilt/zoom range is now covered (23 of 23). Models with no entry yet are simply excluded from the map tool rather than guessed at.</p>
       </div>
       <div class="source-card">
         <div class="source-tag dark">CHIPSETS</div>
@@ -664,7 +724,7 @@
     <div class="footer-brand">
       <div class="footer-brand-row">
         <span class="footer-mark">A$</span>
-        <span class="name">Axis MSRP Price Overlay v3.4.4</span>
+        <span class="name">Axis MSRP Price Overlay v3.10.1</span>
       </div>
       <p>Personal project — not affiliated with, endorsed by, or sponsored by Axis Communications AB. AXIS® is a trademark of Axis Communications AB. Prices are MSRP list prices, not street prices. USD and JPY figures are FX-derived estimates, not independently published Axis price lists.</p>
     </div>

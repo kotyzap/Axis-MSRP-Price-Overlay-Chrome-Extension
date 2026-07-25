@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Axis MSRP Price Overlay — Chrome 拡張機能</title>
-<meta name="description" content="Axis の MSRP 価格と CamStreamer チップセット情報を、製品セレクター・axis.com 検索・製品／カテゴリーページ・製品比較表に直接表示。EUR／USD／JPY 対応、画角フィルター、毎月の価格表を自分で差し替え可能。">
+<meta name="description" content="Axis の MSRP 価格と CamStreamer チップセット情報を、製品セレクター・axis.com 検索・製品／カテゴリーページ・製品比較表に直接表示。EUR／USD／JPY 表示と価格の非表示、描いた撮影範囲からカメラを選べるマップツール、完全日本語 UI、毎月の価格表の自己更新に対応。">
 <link rel="alternate" hreflang="en" href="index.html">
 <link rel="alternate" hreflang="ja" href="index.ja.html">
 <script>
@@ -188,7 +188,12 @@
   }
   .hero h1 span { color: var(--yellow-deep); }
   html[data-theme="dark"] .hero h1 span { color: var(--yellow); }
-  .hero .sub { margin: 0 0 18px; max-width: 520px; font-size: 15.5px; line-height: 1.55; color: var(--mute); }
+  /* Set larger than the English page's 15.5px. The Japanese headline has to run
+     smaller than the English one to fit on two lines, which leaves the left
+     column short next to a tall hero screenshot - a bigger body size takes that
+     space back. line-height is also looser than the English 1.55: Japanese
+     mixes tall kanji with kana and needs more leading to stay readable. */
+  .hero .sub { margin: 0 0 20px; max-width: 100%; font-size: 17.5px; line-height: 1.85; color: var(--mute); }
   .hero .sub a { color: var(--ink); text-decoration-color: var(--yellow); }
   .cta-row { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 22px; }
   .stat-strip {
@@ -245,7 +250,10 @@
   .feature-body strong { color: var(--ink); }
 
   /* ---------- Sorting (live, checkbox-driven demo) ---------- */
-  .sorting { background: var(--bg-alt); }
+  .fovmap { background: var(--bg-alt); }
+  .fovmap-shot { margin: 32px 0 36px; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--yellow); background: var(--bg); }
+  .fovmap .updates-list { max-width: 900px; }
+  .sorting { background: var(--bg); }
 
   /* A real checkbox (not a decorative one) drives everything below it via
      the CSS :checked + general-sibling combinator - no JS needed, and it
@@ -293,7 +301,7 @@
   .state-tag.on { background: var(--yellow); color: var(--void-fixed); font-weight: 600; }
 
   /* ---------- Updates ---------- */
-  .updates { background: var(--bg); }
+  .updates { background: var(--bg-alt); }
   .updates-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: 48px; align-items: center; }
   .updates-shot { margin: 0; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--yellow); }
   .updates-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
@@ -301,7 +309,7 @@
   .updates-list strong { color: var(--ink); }
 
   /* ---------- Install ---------- */
-  .install { background: var(--bg-alt); }
+  .install { background: var(--bg); }
   .install-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: start; }
   .steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
   .steps li { display: flex; gap: 18px; padding: 16px 0; border-bottom: 1px solid var(--border); }
@@ -336,8 +344,8 @@
   .install-cta-note { font-size: 13px; line-height: 1.6; color: var(--mute); margin: 16px 0 0; }
 
   /* ---------- Sources ---------- */
-  .sources { background: var(--bg); border-top: 1px solid var(--border); }
-  .sources-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .sources { background: var(--bg-alt); border-top: 1px solid var(--border); }
+  .sources-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
   .source-card { background: var(--surface); border: 2px solid var(--ink); padding: 26px 26px 30px; }
   .source-tag { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.16em; display: inline-block; padding: 5px 11px; font-weight: 600; margin-bottom: 16px; }
   .source-tag.light { background: var(--yellow); color: var(--void-fixed); }
@@ -386,11 +394,12 @@
       <span class="brand-mark">A$</span>
       <span class="brand-text">
         <span class="t1">Axis MSRP Price Overlay</span>
-        <span class="t2">Chrome 拡張機能 · v3.4.4</span>
+        <span class="t2">Chrome 拡張機能 · v3.10.1</span>
       </span>
     </a>
     <nav class="nav-links">
       <a href="#features">機能</a>
+      <a href="#fovmap">FOV マップ</a>
       <a href="#sorting">並び替え</a>
       <a href="#updates">価格更新</a>
       <a href="#install">インストール</a>
@@ -425,7 +434,7 @@
         <a href="https://www.axis.com/ja-jp/support/tools/product-selector" target="_blank" rel="noopener">Axis 製品セレクター</a>、
         <a href="https://www.axis.com/ja-jp/search" target="_blank" rel="noopener">axis.com の検索結果</a>、
         そして axis.com のすべての製品ページ・カテゴリーページ — <strong>製品比較</strong>表の中まで。
-        EUR・USD・JPY の切り替え、複数選択できるチップセットフィルターと画角スライダー、毎月の価格表を自分で差し替えられる仕組み、任意のモデル名や品番をすぐ引けるツールバーポップアップ付き。ライトテーマ／ダークテーマもお好みで。
+        EUR・USD・JPY の切り替え、あるいは価格をすべて非表示に。複数選択できるチップセットフィルターと画角スライダー、必要な撮影範囲を地図上に描いてカメラを選べるマップツール、完全な日本語 UI、毎月の価格表を自分で差し替えられる仕組み、任意のモデル名や品番をすぐ引けるツールバーポップアップ付き。ライトテーマ／ダークテーマもお好みで。
       </p>
       <div class="cta-row">
         <a class="btn btn-primary" href="https://chromewebstore.google.com/detail/axis-msrp-price-overlay/gnegcekipfaapeboifcejnjmfemfigpl" target="_blank" rel="noopener">
@@ -438,7 +447,7 @@
         <div><div class="stat-num">290</div><div class="stat-label">モデル</div></div>
         <div><div class="stat-num">372</div><div class="stat-label">価格収録 SKU</div></div>
         <div><div class="stat-num">€ / $ / ¥</div><div class="stat-label">EUR＋USD＋JPY</div></div>
-        <div><div class="stat-num">v3.4.4</div><div class="stat-label">現行ビルド</div></div>
+        <div><div class="stat-num">v3.10.1</div><div class="stat-label">現行ビルド</div></div>
       </div>
     </div>
     <figure class="hero-shot">
@@ -459,6 +468,8 @@
     <span>ARTPEC 6-9 ✅ CamStreamer 対応</span><span class="sep">/</span>
     <span>AMB CV25</span><span class="sep">/</span>
     <span>最小画角 90° — フィルター適用中</span><span class="sep">/</span>
+    <span>AXIS P3747-PLVE — 360° カバー</span><span class="sep">/</span>
+    <span>PTZ · パン動作で対応 — 23 / 23 件</span><span class="sep">/</span>
     <span>AXIS M1135 Mk II — €499</span><span class="sep">/</span>
     <span>AXIS P1388 — €1,029</span><span class="sep">/</span>
     <span>AXIS Q1728 — €1,299</span><span class="sep">/</span>
@@ -468,7 +479,9 @@
     <span>~¥18.1万 — AXIS Q1728、リアルタイム円換算</span><span class="sep">/</span>
     <span>ARTPEC 6-9 ✅ CamStreamer 対応</span><span class="sep">/</span>
     <span>AMB CV25</span><span class="sep">/</span>
-    <span>最小画角 90° — フィルター適用中</span>
+    <span>最小画角 90° — フィルター適用中</span><span class="sep">/</span>
+    <span>AXIS P3747-PLVE — 360° カバー</span><span class="sep">/</span>
+    <span>PTZ · パン動作で対応 — 23 / 23 件</span>
   </div>
 </div>
 
@@ -484,7 +497,7 @@
     <div class="feature-grid">
       <div class="feature-card">
         <figure class="feature-figure">
-          <img src="img/inline-badges-overview.png" alt="Axis 製品セレクターの M32・M42・M43 シリーズのカード。すべてに ARTPEC-8 のチップセットバッジと黄色い価格バッジが付いている（旧ビルドのスクリーンショットですが、バッジの見た目は v3.4.4 でも変わっていません）">
+          <img src="img/inline-badges-overview.png" alt="Axis 製品セレクターの M32・M42・M43 シリーズのカード。すべてに ARTPEC-8 のチップセットバッジと黄色い価格バッジが付いている（旧ビルドのスクリーンショットですが、バッジの見た目は v3.10.1 でも変わっていません）">
         </figure>
         <div class="feature-body">
           <div class="feature-kicker">機能 / 01</div>
@@ -569,14 +582,58 @@
           <p>円建ての金額は 1,000 円単位で切り上げ、<strong>万</strong>単位に短縮して表示します — <code>¥93,000</code> ではなく <code>~¥9.3万</code>。どの通貨でも価格バッジの大きさが変わらないためです。先頭の <code>~</code> は、この金額が日本向けの公表価格表からの引用ではなく、EUR の定価を最新の ECB 参照レートでその場で換算した概算値であることを示しています。¥ JPY に切り替えると、ポップアップの注意書きも日本語に切り替わります。</p>
         </div>
       </div>
+
+      <div class="feature-card">
+        <figure class="feature-figure feature-figure-inset">
+          <img src="img/currency-toggle-hide-prices.png" alt="ポップアップの通貨切り替え行。$ USD が選択された状態で、€ EUR、¥ JPY、そして価格を完全に非表示にする 4 つ目の禁止マークのボタンが並んでいる" style="width: 88%; max-width: 344px;">
+        </figure>
+        <div class="feature-body">
+          <div class="feature-kicker">機能 / 09</div>
+          <h3>価格をすべて隠して、他はそのまま</h3>
+          <p>同じ通貨切り替え行にある 4 つ目の <strong>🚫</strong> を選ぶと、拡張機能全体で価格表示が止まります — 製品セレクターのバッジ、検索結果、製品／カテゴリーページ、シリーズのパンくず、2 種類の比較表、ポップアップの一覧、マップツールまで。チップセットバッジ、チップセットフィルター、画角関連の機能はそのまま動くので、価格に関わらない担当者でもカメラ選定ツールとして問題なく使えます。金額を明かさない「安い順」の並び替えも引き続き利用できます。</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <figure class="feature-figure">
+          <img src="img/jp-fov-map-overview.png" alt="完全に日本語表示された FOV マップ カメラセレクター。「微調整」「絞り込み・並べ替え」というパネル見出し、「該当するAxisモデル」の結果ストリップ、そして「画角」「パノラマ」「マルチセンサー」「PTZ · パン動作で対応」のラベルと円建て価格が付いたカメラカードが並んでいる">
+        </figure>
+        <div class="feature-body">
+          <div class="feature-kicker">機能 / 10</div>
+          <h3>必要なときは、完全に日本語で</h3>
+          <p>ポップアップ、価格更新ページ、マップツール、そして axis.com に挿入されるすべてのバッジとツールチップ — これらは次の 3 つのいずれかが成り立つと日本語に切り替わります。<strong>¥ JPY</strong> を選択している、ブラウザーの UI 言語が日本語である、または axis.com の <code>/ja-jp/</code> ロケールを表示している。言語切り替えを覚えておく必要はなく、開いたままのタブにもその場で反映されます。製品名・型番や ARTPEC、CamStreamer といった用語は、日本語の技術系 UI の慣習どおりローマ字表記のままにしています。</p>
+        </div>
+      </div>
     </div>
+  </div>
+</section>
+
+<section class="fovmap" id="fovmap">
+  <div class="wrap">
+    <div class="eyebrow-row">
+      <span class="eyebrow">11 — FOV マップ</span>
+      <span class="rule"></span>
+    </div>
+    <h2 class="section-title">必要な範囲を描けば、<br>それをカバーできるカメラが出ます。</h2>
+    <p class="section-sub">ポップアップからマップツールを開き、カメラを設置する位置にピンを置いて、実際に監視したい範囲の両端をドラッグします。そこから必要な水平画角を算出し、公表されている画角でそれを満たせる Axis モデルを順位付けして表示します。</p>
+
+    <figure class="fovmap-shot">
+      <img src="img/fov-map-overview.png" alt="FOV マップ カメラセレクター。プラハの街路地図上にカメラのピンから黄色い撮影範囲の扇形が描かれ、150.4° の角度と 809 m の距離を微調整する折りたたみ式パネル、下部には該当するカメラカードが横スクロールで並んでいる">
+    </figure>
+
+    <ul class="updates-list">
+      <li><strong>扇形より広い範囲も指定できます。</strong>端のハンドルを外側へドラッグし続けると、反対側に反転することなく 180° を超えてそのまま全周まで広がります。真の 360° モデルを、その特長のために選べるようになりました。</li>
+      <li><strong>PTZ と 360 モデルは、実態どおりに扱います。</strong>パン／チルト／ズームのカメラは全周のどこへでも向けられるため、どの角度にも一致します。ただしパン動作で届いている場合は、カードに <strong>PTZ · パン動作で対応</strong> と明記します — 一度に 1 方向しか撮影できず、範囲全体を同時に監視するわけではないからです。範囲をそのままカバーできるカメラは、必ずその上位に並びます。</li>
+      <li><strong>そのまま使える情報を載せたカード。</strong>各結果には製品写真、そのモデルの画角範囲、チップセットと価格を axis.com と同じバッジで表示し、シリーズ名と品番も添えます。モデル名は axis.com の該当ページへのリンクになっており、品番をクリックすると SKU がそのままクリップボードにコピーされます。</li>
+      <li><strong>考えている軸で並べ替え。</strong>過剰なスペックを避けられる「画角が最も無駄なく合う順」か、「価格が安い順」で並べ替えられます。CamStreamer 対応モデルだけに絞るのもチェックボックス 1 つです。</li>
+    </ul>
   </div>
 </section>
 
 <section class="sorting" id="sorting">
   <div class="wrap">
     <div class="eyebrow-row">
-      <span class="eyebrow">09 — 並び替え</span>
+      <span class="eyebrow">12 — 並び替え</span>
       <span class="rule"></span>
     </div>
     <h2 class="section-title">シリーズを安い順に並べ替える</h2>
@@ -601,7 +658,7 @@
 <section class="updates" id="updates">
   <div class="wrap">
     <div class="eyebrow-row">
-      <span class="eyebrow">10 — 毎月の価格更新</span>
+      <span class="eyebrow">13 — 毎月の価格更新</span>
       <span class="rule"></span>
     </div>
     <h2 class="section-title">AXIS 価格表をドロップするだけ — 再インストール不要</h2>
@@ -623,7 +680,7 @@
 <section class="install" id="install">
   <div class="wrap">
     <div class="eyebrow-row">
-      <span class="eyebrow">11 — インストール</span>
+      <span class="eyebrow">14 — インストール</span>
       <span class="rule"></span>
     </div>
     <h2 class="section-title">Chrome ウェブストアからインストール</h2>
@@ -655,7 +712,7 @@
 <section class="sources" id="sources">
   <div class="wrap">
     <div class="eyebrow-row">
-      <span class="eyebrow">12 — データ出典</span>
+      <span class="eyebrow">15 — データ出典</span>
       <span class="rule"></span>
     </div>
     <h2 class="section-title" style="margin-bottom:44px;">数字の出どころ</h2>
@@ -667,6 +724,10 @@
       <div class="source-card">
         <div class="source-tag light">価格 / USD＋JPY</div>
         <p>どちらも概算値で、先頭に <code>~</code> が付きます。USD は同梱データ作成時のレートで固定されており（1 EUR ≈ 1.1387 USD、xe.com による）、基本的には EUR からの為替換算値です。ただし EUR の登録がない一部の SKU については、Axis の米国価格表の金額をそのまま使っています。JPY は api.frankfurter.dev が最後に返した EUR／JPY レートで EUR からその場で換算し、万単位に短縮して表示します。レートはチップセットデータと同じタイミングで毎週更新されます。</p>
+      </div>
+      <div class="source-card">
+        <div class="source-tag light">画角</div>
+        <p><code>fov-data.js</code> は手作業で整備しています。製品セレクターは認証付きの内部 API から画角を読み込んでおり公開フィードが存在しないため、各値はそのモデル自身の axis.com 製品ページの<strong>技術仕様 → レンズ → 水平画角</strong>の行から転記しています。現在 93 件のエントリーが 377 SKU 中 99 件に対応し、パン／チルト／ズームの製品群は全 23 件をカバー済みです。未登録のモデルは推測せず、マップツールの対象から除外します。</p>
       </div>
       <div class="source-card">
         <div class="source-tag dark">チップセット</div>
@@ -681,7 +742,7 @@
     <div class="footer-brand">
       <div class="footer-brand-row">
         <span class="footer-mark">A$</span>
-        <span class="name">Axis MSRP Price Overlay v3.4.4</span>
+        <span class="name">Axis MSRP Price Overlay v3.10.1</span>
       </div>
       <p>個人プロジェクトです。Axis Communications AB とは提携関係にはなく、同社による承認・後援も受けていません。AXIS® は Axis Communications AB の商標です。表示される価格は MSRP（希望小売価格）であり、実売価格ではありません。USD および JPY の金額は為替から算出した概算値で、Axis が独自に公表している価格表ではありません。</p>
     </div>
